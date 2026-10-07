@@ -89,7 +89,10 @@ footer{color:#64748b;font-size:12px;margin-top:28px}
 <script>
 (function(){
 var C=window.SITE_CONFIG, R=window.RATES||{regions:{},months:[]}, K=window.KOGAS||{months:{}}, H=window.HEAT||{history:[]};
-var KCAL=C.heatingValueKcal||10190, CF=KCAL*4.1868/1000;
+var KCAL=C.heatingValueKcal||10190, CF=KCAL*4.1868/1000, EFF=0.9;
+// 우축(원/Mcal)은 좌축과 같은 눈금: 도시가스를 개별난방(효율 90%)으로 환산한 원/Mcal. 열요금 선이 도시가스 선보다 위면 열요금이 더 비쌈
+function heatToPrim(h){return h*EFF*KCAL/1000/(state.unit==="m3"?1:CF)}
+function primToHeat(p){return p/(EFF*KCAL/1000)*(state.unit==="m3"?1:CF)}
 var state={unit:"m3", region:"경기"};
 var $=function(s){return document.querySelector(s)};
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
@@ -133,12 +136,12 @@ function bindUnit(fn){var el=$("#unitSeg");if(el)el.onclick=function(e){var u=e.
 function bindReg(fn){var rs=$("#regSeg");if(rs)rs.onclick=function(e){var g=e.target.getAttribute&&e.target.getAttribute("data-r");if(g){state.region=g;fn()}}}
 
 var SERIES=[
- {name:"도시가스 주택난방용",color:"#1f5fbf",shape:"circle",get:function(m){return conv(gasMJ(state.region,KEYS["주택난방"][state.region],m))}},
- {name:"도시가스 산업용",color:"#e08a00",shape:"x",get:function(m){return conv(gasMJ(state.region,KEYS["산업용"][state.region],m))}},
- {name:"도시가스 열병합용",color:"#2a9d5c",shape:"tri",get:function(m){return conv(gasMJ(state.region,KEYS["열병합용"][state.region],m))}},
- {name:"도시가스 연료전지용",color:"#8e44ad",shape:"diamond",get:function(m){return conv(gasMJ(state.region,KEYS["연료전지용"][state.region],m))}},
- {name:"KOGAS 발전용(일반발전)",color:"#c0392b",shape:"square",get:function(m){return conv(kogasMJ(m))}},
- {name:"열요금 주택용 난방(우축)",color:"#555e6b",dash:"5 4",sec:true,get:function(m){return heatAt(m,"residential")}}
+ {name:"도시가스 주택난방용",g:"도시가스",sub:"주택난방용",color:"#1f5fbf",shape:"circle",get:function(m){return conv(gasMJ(state.region,KEYS["주택난방"][state.region],m))}},
+ {name:"도시가스 산업용",g:"도시가스",sub:"산업용",color:"#e08a00",shape:"x",get:function(m){return conv(gasMJ(state.region,KEYS["산업용"][state.region],m))}},
+ {name:"도시가스 열병합용",g:"도시가스",sub:"열병합용",color:"#2a9d5c",shape:"tri",get:function(m){return conv(gasMJ(state.region,KEYS["열병합용"][state.region],m))}},
+ {name:"도시가스 연료전지용",g:"도시가스",sub:"연료전지용",color:"#8e44ad",shape:"diamond",get:function(m){return conv(gasMJ(state.region,KEYS["연료전지용"][state.region],m))}},
+ {name:"KOGAS 발전용(일반발전)",g:"KOGAS 발전용",sub:"일반발전",color:"#c0392b",shape:"square",get:function(m){return conv(kogasMJ(m))}},
+ {name:"열요금 주택용 난방(우축)",g:"열요금",sub:"주택용 난방",color:"#555e6b",dash:"5 4",sec:true,get:function(m){return heatAt(m,"residential")}}
 ];
 function sname(s){return s.name.replace("(우축)","")}
 function mk(shape,x,y,c,r){
@@ -156,7 +159,7 @@ function viewHome(){
   var months=[];for(var i=23;i>=0;i--)months.push(addM(latest,-i));
   var html='';
   html+='<div class="card"><h2>요금 변동 사항 ('+latest+')</h2><div class="cbox"><ul id="cm"></ul></div></div>';
-  html+='<div class="card"><h2>최근 24개월 요금 추이 ('+months[0]+' ~ '+latest+', 도시가스 '+state.region+')</h2><div class="ctl"><div class="r">'+unitPick()+regPick()+'</div></div><div class="legend">'+SERIES.map(function(s){return '<span>'+swatch(s)+s.name+'</span>'}).join("")+'</div><div id="chart"><svg id="svg"></svg><div id="tip"></div></div></div>';
+  html+='<div class="card"><h2>최근 24개월 요금 추이 ('+months[0]+' ~ '+latest+', 도시가스 '+state.region+')</h2><div class="ctl"><div class="r">'+unitPick()+regPick()+'</div></div><div class="legend">'+SERIES.map(function(s){return '<span>'+swatch(s)+s.name+'</span>'}).join("")+'</div><div id="chart"><svg id="svg"></svg><div id="tip"></div></div><div class="note">우축(원/Mcal)은 좌축과 같은 눈금입니다. 도시가스 주택난방용을 개별난방(효율 90%, 열량 '+KCAL.toLocaleString("ko-KR")+'kcal/㎥)으로 환산한 원/Mcal이므로, 열요금 선이 도시가스 주택난방용 선보다 위에 있으면 열요금이 더 비싼 구간입니다.</div></div>';
   html+='<div class="card"><h2>그래프 수치 (최근 12개월, '+unitLabel()+', 열요금 원/Mcal)</h2><div class="tw"><table id="tbl" class="eq"></table></div><div class="note">빈 칸(-)은 해당 월 데이터가 아직 수집되지 않은 구간입니다. 열병합용 = '+esc(KEYS["열병합용"][state.region])+'.</div></div>';
   html+='<div><h2>요금상세</h2>'+tabs("none")+'</div>';
   $("#view").innerHTML=html;
@@ -172,10 +175,11 @@ function comments(){
     var ch=[],n=0;
     Object.keys(KEYS).forEach(function(lab){
       var k=KEYS[lab][g]; if(cur[k]==null||pre[k]==null)return;
+      if(Math.abs(cur[k]-pre[k])<1e-9){ch.push(lab+" "+fmt(conv(cur[k]))+"(0.00)");return}
       ch.push(lab+" "+fmt(conv(pre[k]))+"→"+fmt(conv(cur[k]))+"("+fmtD(conv(cur[k])-conv(pre[k]))+")");
     });
     Object.keys(cur).forEach(function(k){if(pre[k]!=null&&Math.abs(cur[k]-pre[k])>1e-9)n++});
-    out.push("도시가스 "+g+": 전월 대비 "+n+"개 용도 요금 변동. "+ch.join(", ")+" ("+unitLabel()+")");
+    out.push("도시가스 "+g+": 전월 대비 "+n+"개 용도 요금 변동"+(ch.length?". "+ch.join(", ")+" ("+unitLabel()+")":""));
   });
   var kc=kogasMJ(latest),kp=kogasMJ(prev);
   if(kc!=null&&kp!=null)out.push("KOGAS 발전용(일반발전): "+fmt(conv(kp))+"→"+fmt(conv(kc))+" "+unitLabel()+" ("+fmtD(conv(kc)-conv(kp))+", "+fmtD((kc/kp-1)*100)+"%)");
@@ -184,7 +188,7 @@ function comments(){
   $("#cm").innerHTML=out.map(function(s){return "<li>"+esc(s)+"</li>"}).join("");
 }
 function table(months){
-  var h='<tr><th>월</th>'+SERIES.map(function(s){return '<th>'+sname(s)+'</th>'}).join("")+'</tr>';
+  var h='<tr><th rowspan="2">월</th><th colspan="4">도시가스</th><th>KOGAS 발전용</th><th>열요금</th></tr><tr>'+SERIES.map(function(s){return '<th>'+s.sub+'</th>'}).join("")+'</tr>';
   months.slice().reverse().forEach(function(m){
     h+='<tr><td>'+m+'</td>'+SERIES.map(function(s){return '<td>'+fmt(s.get(m))+'</td>'}).join("")+'</tr>';
   });
@@ -194,30 +198,30 @@ function chart(months){
   var W=Math.max(320,$("#chart").clientWidth||900),Ht=360,m={l:62,r:62,t:18,b:34};
   var svg=$("#svg");svg.setAttribute("width",W);svg.setAttribute("height",Ht);
   var pw=W-m.l-m.r,ph=Ht-m.t-m.b;
-  function range(sec){var a=[];SERIES.forEach(function(s){if(!!s.sec===sec)months.forEach(function(x){var v=s.get(x);if(v!=null)a.push(v)})});
+  function range(){var a=[];SERIES.forEach(function(s){months.forEach(function(x){var v=s.get(x);if(v!=null)a.push(s.sec?heatToPrim(v):v)})});
     if(!a.length)return [0,1];var lo=Math.min.apply(0,a),hi=Math.max.apply(0,a);var pad=(hi-lo)*0.12||hi*0.1||1;return [Math.max(0,lo-pad),hi+pad]}
-  var rp=range(false),rs=range(true);
-  function X(i){return m.l+pw*i/(months.length-1)}
+  var rp=range();
+  var gp=18;function X(i){return m.l+gp+(pw-2*gp)*i/(months.length-1)}
   function Y(v,r){return m.t+ph*(1-(v-r[0])/(r[1]-r[0]))}
   var o="",i;
-  for(i=0;i<=5;i++){var vp=rp[0]+(rp[1]-rp[0])*i/5,vs=rs[0]+(rs[1]-rs[0])*i/5,y=m.t+ph*(1-i/5);
+  for(i=0;i<=5;i++){var vp=rp[0]+(rp[1]-rp[0])*i/5,vs=primToHeat(vp),y=m.t+ph*(1-i/5);
     o+='<line x1="'+m.l+'" x2="'+(W-m.r)+'" y1="'+y+'" y2="'+y+'" stroke="var(--line)"/>';
     o+='<text x="'+(m.l-6)+'" y="'+(y+4)+'" text-anchor="end" font-size="11" fill="var(--mute)">'+fmt(vp,state.unit==="m3"?1:2)+'</text>';
     o+='<text x="'+(W-m.r+6)+'" y="'+(y+4)+'" font-size="11" fill="var(--mute)">'+fmt(vs,1)+'</text>';}
-  o+='<text x="'+m.l+'" y="10" font-size="11" fill="var(--mute)">좌: '+unitLabel()+'</text><text x="'+(W-m.r)+'" y="10" font-size="11" text-anchor="end" fill="var(--mute)">우: 원/Mcal</text>';
+  o+='<text x="'+m.l+'" y="10" font-size="11" fill="var(--mute)">좌: '+unitLabel()+'</text><text x="'+(W-m.r)+'" y="10" font-size="11" text-anchor="end" fill="var(--mute)">우: 원/Mcal (좌축과 같은 눈금, 도시가스 효율 90% 환산)</text>';
   months.forEach(function(x,i){if(i%3===(months.length-1)%3)o+='<text x="'+X(i)+'" y="'+(Ht-12)+'" text-anchor="middle" font-size="11" fill="var(--mute)">'+x+'</text>'});
   SERIES.forEach(function(s){
-    var r=s.sec?rs:rp,d="",pen=false;
-    months.forEach(function(x,i){var v=s.get(x);if(v==null){pen=false;return}d+=(pen?"L":"M")+X(i).toFixed(1)+" "+Y(v,r).toFixed(1)+" ";pen=true});
+    var r=rp,d="",pen=false;
+    months.forEach(function(x,i){var v=s.get(x);if(v==null){pen=false;return}if(s.sec)v=heatToPrim(v);d+=(pen?"L":"M")+X(i).toFixed(1)+" "+Y(v,r).toFixed(1)+" ";pen=true});
     o+='<path d="'+d+'" fill="none" stroke="'+s.color+'" stroke-width="2"'+(s.dash?' stroke-dasharray="'+s.dash+'"':'')+'/>';
-    months.forEach(function(x,i){var v=s.get(x);if(v!=null)o+=mk(s.shape,X(i).toFixed(1),Y(v,r).toFixed(1),s.color,3)});
+    months.forEach(function(x,i){var v=s.get(x);if(v!=null)o+=mk(s.shape,X(i).toFixed(1),Y(s.sec?heatToPrim(v):v,r).toFixed(1),s.color,3)});
   });
   o+='<line id="vl" y1="'+m.t+'" y2="'+(m.t+ph)+'" stroke="var(--mute)" stroke-dasharray="3 3" style="display:none"/><rect id="hit" x="'+m.l+'" y="'+m.t+'" width="'+pw+'" height="'+ph+'" fill="transparent"/>';
   svg.innerHTML=o;
   var tip=$("#tip"),vl=$("#vl");
   function move(e){
     var b=svg.getBoundingClientRect(),cx=e.touches?e.touches[0].clientX:e.clientX,px=cx-b.left;
-    var i=Math.round((px-m.l)/pw*(months.length-1));i=Math.max(0,Math.min(months.length-1,i));
+    var i=Math.round((px-m.l-gp)/(pw-2*gp)*(months.length-1));i=Math.max(0,Math.min(months.length-1,i));
     vl.setAttribute("x1",X(i));vl.setAttribute("x2",X(i));vl.style.display="";
     tip.innerHTML='<b>'+months[i]+'</b>'+SERIES.map(function(s){var v=s.get(months[i]);
       return '<div style="display:flex;align-items:center">'+swatch(s)+sname(s)+': <b>'+fmt(v)+'</b> '+(s.sec?"원/Mcal":unitLabel())+'</div>'}).join("");
