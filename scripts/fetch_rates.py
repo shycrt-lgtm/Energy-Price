@@ -51,14 +51,22 @@ def default_since(today):
 
 
 def fetch(url):
-    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (rate-updater)"})
+    """(상태코드, 본문) 반환. 파일이 없거나 거부돼도 예외 없이 상태코드만 돌려준다."""
+    req = urllib.request.Request(
+        url,
+        headers={
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0 Safari/537.36",
+            "Accept": "*/*",
+            "Referer": "https://cs.samchully.co.kr/",
+        },
+    )
     try:
         with urllib.request.urlopen(req, timeout=30) as resp:
-            return resp.read()
+            return resp.status, resp.read()
     except urllib.error.HTTPError as e:
-        if e.code in (403, 404):
-            return None
-        raise
+        return e.code, None
+    except (urllib.error.URLError, TimeoutError, OSError) as e:
+        return f"접속오류({type(e).__name__})", None
 
 
 def main():
@@ -72,6 +80,7 @@ def main():
     have = {r: set(store["regions"].get(r, {}).get("months", {})) for r in REGIONS}
     INBOX.mkdir(exist_ok=True)
     saved = []
+    stats = {}
     for region in REGIONS:
         for month in month_starts(since, today):
             iso = month.isoformat()
@@ -81,7 +90,10 @@ def main():
                 for ext in EXTS:
                     name = f"단가변동표_{region}_{iso}_{seq:02d}.{ext}"
                     url = BASE.format(year=month.year, name=urllib.parse.quote(name))
-                    data = fetch(url)
+                    status, data = fetch(url)
+                    stats[status] = stats.get(status, 0) + 1
+                    if sum(stats.values()) <= 6:
+                        print(f"  요청 {status}: {name}")
                     time.sleep(0.5)
                     if data and data.startswith(MAGIC[ext]):
                         path = INBOX / name
@@ -89,6 +101,7 @@ def main():
                         saved.append(path)
                         print("받음:", name, len(data), "bytes")
                         break
+    print("응답 코드 집계:", stats)
     if not saved:
         print("새 파일 없음")
         return
