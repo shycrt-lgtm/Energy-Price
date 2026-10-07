@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Energy-Price</title>
+<title>에너지 단가</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -72,7 +72,7 @@ footer{color:#64748b;font-size:12px;margin-top:28px}
 <header class="site-header">
   <div class="in">
     <div>
-      <h1><a href="#home" style="color:#fff">에너지 요금 현황</a></h1>
+      <h1><a href="#home" style="color:#fff">에너지 단가</a></h1>
       <p class="sub" id="sub"></p>
     </div>
     <nav class="menu" id="sites"></nav>
@@ -121,7 +121,7 @@ function route(){return (location.hash||"#home").slice(1)}
 window.addEventListener("hashchange",function(){render();window.scrollTo(0,0)});
 
 function render(){
-  $("#sub").innerHTML="기준월: <b>"+(latest?latest.slice(0,4)+"년 "+(+latest.slice(5))+"월":"-")+"</b> | 도시가스(경기·인천) · KOGAS 발전용 · 열요금 | 에너지사업총괄";
+  $("#sub").innerHTML="기준월: <b>"+(latest?latest.slice(0,4)+"년 "+(+latest.slice(5))+"월":"-")+"</b> | 에너지사업총괄";
   var r=route();
   if(r==="gas")viewGas();else if(r==="kogas")viewKogas();else if(r==="heat")viewHeat();else viewHome();
 }

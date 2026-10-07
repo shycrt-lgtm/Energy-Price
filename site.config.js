@@ -7,6 +7,6 @@ window.SITE_CONFIG = {
     { id: "energy-index", name: "에너지 시장 주요정보", url: "https://shycrt-lgtm.github.io/Energy-Index/" },
     { id: "kpx-daily", name: "전력시장 전일실적", url: "https://shycrt-lgtm.github.io/KPX-Daily-Report/" },
     { id: "tms", name: "TMS", url: "https://shycrt-lgtm.github.io/TMS/" },
-    { id: "energy-price", name: "에너지 요금 현황", url: "https://shycrt-lgtm.github.io/Energy-Price/" }
+    { id: "energy-price", name: "에너지 단가", url: "https://shycrt-lgtm.github.io/Energy-Price/" }
   ]
 };
