@@ -1,0 +1,46 @@
+name: update-rates
+
+on:
+  schedule:
+    - cron: "30 0 * * *"   # 매일 09:30 KST
+  workflow_dispatch:
+    inputs:
+      since:
+        description: "이 월부터 확인 (예: 2026-01). 비우면 최근 3개월"
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install xlrd openpyxl
+      - name: 접속 진단 (삼천리 파일 서버가 GitHub에서 열리는지 확인)
+        run: |
+          URL="https://ecpgw.samchully.co.kr/res/files/contents/docs/prices/2026/%EB%8B%A8%EA%B0%80%EB%B3%80%EB%8F%99%ED%91%9C_%EC%9D%B8%EC%B2%9C_2026-06-01_01.xlsx"
+          curl -sS -I --max-time 30 "$URL" | head -12 || echo "접속 실패: 이 환경에서는 해당 서버에 연결할 수 없음"
+        continue-on-error: true
+      - name: 요금단가표 수집 및 누적
+        run: |
+          if [ -n "${{ github.event.inputs.since }}" ]; then
+            python scripts/fetch_rates.py --since "${{ github.event.inputs.since }}"
+          else
+            python scripts/fetch_rates.py
+          fi
+      - name: 변경 사항 커밋
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git config user.name "rate-updater"
+            git config user.email "rate-updater@users.noreply.github.com"
+            git add -A
+            git commit -m "도시가스 요금단가 업데이트"
+            git push
+          else
+            echo "변경 없음"
+          fi
