@@ -4,57 +4,75 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Energy-Price</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#f5f6f8;--card:#fff;--ink:#1c2430;--mute:#6b7685;--line:#e2e6ec;--acc:#1f5fbf;--up:#c0392b;--down:#1f7a4d}
-@media (prefers-color-scheme:dark){:root{--bg:#12161c;--card:#1b222b;--ink:#e6eaf0;--mute:#93a0b0;--line:#2c3643;--acc:#6aa5ff;--up:#ff7b6b;--down:#5fd39a}}
+/* KPX-Daily-Report · TMS 와 동일한 톤: 흰 배경 · Noto Sans KR · 네이비(#001f3f) 헤더 · 얇은 회색 격자 표 */
+:root{--line:#e5e7eb;--mute:#64748b;--up:#dc2626;--down:#059669}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 -apple-system,"Malgun Gothic","Apple SD Gothic Neo",sans-serif}
-a{color:var(--acc);text-decoration:none}
-.wrap{max-width:1180px;margin:0 auto;padding:0 16px 40px}
-nav.sites{background:var(--card);border-bottom:1px solid var(--line)}
-nav.sites .wrap{display:flex;gap:4px;padding:8px 16px;flex-wrap:wrap}
-nav.sites a,nav.sites span{padding:5px 12px;border-radius:6px;font-weight:600}
-nav.sites .cur{background:var(--acc);color:#fff}
-nav.sites .off{color:var(--mute);font-weight:400}
-h1{font-size:22px;margin:20px 0 2px}
-.sub{color:var(--mute);margin-bottom:14px}
-.bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:10px 0}
-.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
-.seg button{border:0;background:var(--card);color:var(--ink);padding:6px 14px;cursor:pointer;font:inherit}
-.seg button.on{background:var(--acc);color:#fff}
-select{padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font:inherit}
-.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:12px 0}
-.card h2{font-size:15px;margin:0 0 8px}
-ul.cm{margin:0;padding-left:18px}
-ul.cm li{margin:3px 0}
-.up{color:var(--up)}.down{color:var(--down)}
-.tabs{display:flex;gap:8px;flex-wrap:wrap}
-.tabs a{padding:8px 16px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font-weight:600}
-.tabs a.on{background:var(--acc);color:#fff;border-color:var(--acc)}
-.tw{overflow:auto}
-table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
-th,td{padding:6px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
-th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:var(--card)}
-th{background:var(--bg);font-weight:600}
-.legend{display:flex;gap:14px;flex-wrap:wrap;margin:6px 0;font-size:13px}
+body{margin:0;font-family:'Noto Sans KR',sans-serif;background:#fff;color:#1a1a1a;line-height:1.5;font-size:16px}
+a{color:inherit;text-decoration:none}
+.site-header{line-height:1.4;position:sticky;top:0;z-index:100;background:#001f3f;color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+.site-header .in{max-width:1000px;margin:0 auto;padding:18px 16px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.site-header h1{line-height:1.2;margin:0;font-size:28px;font-weight:900;letter-spacing:-.02em;color:#fff}
+.site-header .sub{margin:4px 0 0;font-size:13px;color:#b6c2d1}
+.site-header .sub b{color:#fff;font-weight:700}
+.menu{display:flex;gap:10px;flex-wrap:wrap}
+.menu a,.menu span.off{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:190px;height:44px;padding:0;border-radius:2px;background:#e5e7eb;color:#1e293b;font-size:14px;font-weight:700;transition:background .15s}
+.menu a:hover{background:#f1f5f9}
+.menu span.off{opacity:.55}
+.menu a span{font-size:16px;line-height:1}
+@media (max-width:640px){.site-header h1{font-size:22px}.menu{width:100%}.menu a,.menu span.off{flex:1;width:auto;height:40px;padding:0 12px;font-size:13px}}
+.wrap{max-width:1000px;margin:0 auto;padding:28px 16px 48px}
+body h2{display:flex;align-items:center;font-size:18px;font-weight:700;color:#001f3f;margin:30px 0 10px;padding-bottom:8px;border-bottom:2px solid #e5e7eb}
+body h2::before{content:'';flex:none;width:6px;height:18px;margin-right:9px;background:#001f3f}
+.card{margin:0}
+.pick-row{display:flex;justify-content:flex-start;align-items:center;gap:8px 16px;flex-wrap:wrap;margin:0 0 4px}
+.pick{display:flex;align-items:center;gap:8px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:6px 12px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.pick .lb{font-size:14px;font-weight:700;color:#334155}
+.pick .hint{font-size:12px;color:#64748b}
+.seg{display:inline-flex;border:1px solid #e2e8f0;border-radius:4px;overflow:hidden}
+.seg button{border:0;background:#fff;color:#334155;padding:6px 14px;cursor:pointer;font:inherit;font-size:12px;font-weight:700}
+.seg button.on{background:#001f3f;color:#fff}
+select{padding:5px 10px;border:1px solid #e2e8f0;border-radius:4px;background:#fff;color:#1e293b;font:inherit;font-size:14px;font-weight:700}
+.sub2{font-size:13px;color:#64748b}
+.cbox{background:#f9fafb;border:1px solid #e5e7eb;padding:16px 20px;font-size:15px;line-height:1.75;color:#1a1a1a}
+.cbox ul{margin:0;padding-left:20px;color:#334155}
+.cbox li{margin:2px 0}
+.up{color:var(--up);font-weight:700}.down{color:var(--down);font-weight:700}
+.tabs{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 4px}
+.tabs a{display:inline-flex;align-items:center;justify-content:center;min-width:150px;height:40px;padding:0 16px;border-radius:2px;background:#e5e7eb;color:#1e293b;font-size:14px;font-weight:700}
+.tabs a:hover{background:#f1f5f9}
+.tabs a.on{background:#001f3f;color:#fff}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th,td{border:1px solid #e5e7eb;padding:12px;text-align:center;font-size:.875rem;white-space:nowrap}
+th{background:#f8fafc;font-weight:700;color:#334155;line-height:1.4}
+td.l{text-align:left}
+td:first-child{font-weight:700}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin:0 0 8px;font-size:12px;color:#334155;font-weight:500}
 .legend i{display:inline-block;width:18px;height:3px;vertical-align:middle;margin-right:5px}
-#chart{position:relative}
-#tip{position:absolute;pointer-events:none;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:12px;box-shadow:0 4px 14px rgba(0,0,0,.18);display:none;z-index:5;white-space:nowrap}
-.note{color:var(--mute);font-size:12px;margin-top:8px}
-.menu{margin-top:24px}
-footer{color:var(--mute);font-size:12px;margin-top:24px}
+#chart{position:relative;border:1px solid #e5e7eb;padding:1rem;background:#fff}
+#svg{font-family:inherit;display:block}
+#tip{position:absolute;pointer-events:none;background:#fff;border:1px solid #cbd5e1;padding:8px 10px;font-size:12px;box-shadow:0 10px 25px -5px rgba(0,0,0,.15);display:none;z-index:5;white-space:nowrap}
+.note{color:#64748b;font-size:12px;margin-top:8px}
+footer{color:#64748b;font-size:12px;margin-top:28px}
 </style>
+
 </head>
 <body>
-<nav class="sites"><div class="wrap" id="sites"></div></nav>
+<header class="site-header">
+  <div class="in">
+    <div>
+      <h1><a href="#home" style="color:#fff">에너지 요금 현황</a></h1>
+      <p class="sub" id="sub"></p>
+    </div>
+    <nav class="menu" id="sites"></nav>
+  </div>
+</header>
 <div class="wrap">
-<h1>Energy-Price</h1>
-<div class="sub" id="sub"></div>
-<div class="bar">
-  <span>단위</span>
-  <div class="seg" id="unitSeg"><button data-u="m3">원/㎥</button><button data-u="mj">원/MJ</button></div>
-  <span class="sub" id="unitNote" style="margin:0"></span>
-</div>
+<div class="pick-row"><div class="pick"><span class="lb">단위</span><div class="seg" id="unitSeg"><button data-u="m3">원/㎥</button><button data-u="mj">원/MJ</button></div><span class="hint" id="unitNote"></span></div></div>
 <div id="view"></div>
 <footer>도시가스: 삼천리 단가변동표(VAT 별도) · KOGAS: 발전용 천연가스 요금 단가(일반발전사업자, 원/GJ 고시) · 열요금: 한국지역난방공사(VAT 별도). 도시가스·KOGAS는 선택 단위로 통일 표시, 열요금은 원/Mcal.</footer>
 </div>
@@ -70,9 +88,8 @@ var state={unit:"m3", region:"경기"};
 var $=function(s){return document.querySelector(s)};
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
 
-$("#sites").innerHTML=C.sites.map(function(s){
-  if(s.id===C.current) return '<span class="cur">'+esc(s.name)+'</span>';
-  return s.url?'<a href="'+esc(s.url)+'">'+esc(s.name)+'</a>':'<span class="off" title="주소 미설정">'+esc(s.name)+'</span>';
+$("#sites").innerHTML=C.sites.filter(function(x){return x.id!==C.current}).map(function(x){
+  return x.url?'<a href="'+esc(x.url)+'">'+esc(x.name)+' <span>›</span></a>':'<span class="off" title="주소 미설정">'+esc(x.name)+'</span>';
 }).join("");
 
 function unitLabel(){return state.unit==="m3"?"원/㎥":"원/MJ"}
@@ -96,13 +113,13 @@ window.addEventListener("hashchange",render);
 
 function render(){
   document.querySelectorAll("#unitSeg button").forEach(function(b){b.className=b.getAttribute("data-u")===state.unit?"on":""});
-  $("#unitNote").textContent=state.unit==="m3"?"("+KCAL.toLocaleString("ko-KR")+"kcal/㎥ 기준 환산)":"";
-  $("#sub").textContent="도시가스(삼천리 경기/인천) · KOGAS 발전용(일반발전) · 한난 열요금 | 최신 "+(latest||"-")+" | 단위 "+unitLabel()+" (열요금 원/Mcal)";
+  $("#unitNote").textContent=state.unit==="m3"?KCAL.toLocaleString("ko-KR")+"kcal/㎥ 기준 환산":"";
+  $("#sub").innerHTML="기준월: <b>"+(latest?latest.slice(0,4)+"년 "+(+latest.slice(5))+"월":"-")+"</b> | 도시가스(경기·인천) · KOGAS 발전용 · 열요금 | 에너지사업총괄";
   var r=route();
   if(r==="gas")viewGas();else if(r==="kogas")viewKogas();else if(r==="heat")viewHeat();else viewHome();
 }
 function tabs(cur){
-  return '<div class="tabs menu">'+[["gas","도시가스"],["kogas","KOGAS 발전용(일반발전)"],["heat","열요금"]].map(function(t){
+  return '<div class="tabs">'+[["home","홈(그래프)"],["gas","도시가스"],["kogas","KOGAS 발전용(일반발전)"],["heat","열요금"]].map(function(t){
     return '<a href="#'+t[0]+'" class="'+(cur===t[0]?"on":"")+'">'+t[1]+'</a>'}).join("")+'</div>';
 }
 function regSeg(){return '<div class="seg" id="regSeg">'+["경기","인천"].map(function(g){return '<button data-r="'+g+'" class="'+(state.region===g?"on":"")+'">'+g+'</button>'}).join("")+'</div>'}
@@ -120,11 +137,11 @@ function sname(s){return s.name.replace("(우축)","")}
 
 function viewHome(){
   var months=[];for(var i=23;i>=0;i--)months.push(addM(latest,-i));
-  var html='<div class="bar"><span>도시가스 지역</span>'+regSeg()+'</div>';
-  html+='<div class="card"><h2>요금 변동 사항 ('+latest+')</h2><ul class="cm" id="cm"></ul></div>';
+  var html='<div class="pick-row"><div class="pick"><span class="lb">도시가스 지역</span>'+regSeg()+'</div></div>';
+  html+='<div class="card"><h2>요금 변동 사항 ('+latest+')</h2><div class="cbox"><ul id="cm"></ul></div></div>';
   html+='<div class="card"><h2>최근 24개월 요금 추이 ('+months[0]+' ~ '+latest+', 도시가스 '+state.region+')</h2><div class="legend">'+SERIES.map(function(s){return '<span><i style="background:'+s.color+'"></i>'+s.name+'</span>'}).join("")+'</div><div id="chart"><svg id="svg"></svg><div id="tip"></div></div></div>';
   html+='<div class="card"><h2>그래프 수치 ('+unitLabel()+', 열요금 원/Mcal)</h2><div class="tw"><table id="tbl"></table></div><div class="note">빈 칸(-)은 해당 월 데이터가 아직 수집되지 않은 구간입니다. 열병합용 = '+esc(KEYS["열병합용"][state.region])+'.</div></div>';
-  html+='<div class="menu"><h2 style="font-size:16px;margin:0 0 8px">요금상세</h2>'+tabs("")+'</div>';
+  html+='<div><h2>요금상세</h2>'+tabs("none")+'</div>';
   $("#view").innerHTML=html;
   bindReg(render);
   comments();chart(months);table(months);
@@ -206,11 +223,11 @@ function viewGas(){
   var list=gasMonths(state.region).sort();
   if(!gasSel||list.indexOf(gasSel)<0)gasSel=list[list.length-1];
   var r=R.regions[state.region],cur=r.months[gasSel+"-01"],pm=prevOf(list,gasSel),pre=pm?r.months[pm+"-01"]:null;
-  var h=tabs("gas")+'<div class="card"><h2>도시가스 요금 상세</h2><div class="bar">'+regSeg()+monthSelect(list,gasSel)+'<span class="sub" style="margin:0">단위 '+unitLabel()+' (VAT 별도)</span></div><div class="tw"><table><tr><th>용도</th><th>요금</th><th>전월</th><th>증감</th><th>비고</th></tr>';
+  var h=tabs("gas")+'<div class="card"><h2>도시가스 요금 상세</h2><div class="pick-row">'+regSeg()+monthSelect(list,gasSel)+'<span class="sub2">단위 '+unitLabel()+' (VAT 별도)</span></div><div class="tw"><table><tr><th>용도</th><th>요금</th><th>전월</th><th>증감</th><th>비고</th></tr>';
   r.order.forEach(function(k){
     if(cur[k]==null)return;
     var v=conv(cur[k]),p=pre&&pre[k]!=null?conv(pre[k]):null,d=p==null?null:v-p;
-    h+='<tr><td>'+esc(k)+'</td><td>'+fmt(v)+'</td><td>'+fmt(p)+'</td><td class="'+cls(d)+'">'+fmtD(d)+'</td><td style="text-align:left">'+esc(r.remarks[k]||"")+'</td></tr>';
+    h+='<tr><td>'+esc(k)+'</td><td>'+fmt(v)+'</td><td>'+fmt(p)+'</td><td class="'+cls(d)+'">'+fmtD(d)+'</td><td class="l">'+esc(r.remarks[k]||"")+'</td></tr>';
   });
   h+='</table></div><div class="note">'+esc(r.note||"")+'</div></div>';
   $("#view").innerHTML=h;
@@ -225,7 +242,7 @@ function viewKogas(){
   var d=K.months[kSel],pm=prevOf(list,kSel),p=pm?K.months[pm]:null;
   function row(lab,k){var v=conv(d[k]/1000),pv=p?conv(p[k]/1000):null,df=pv==null?null:v-pv;
     return '<tr><td>'+lab+'</td><td>'+fmt(v)+'</td><td>'+fmt(pv)+'</td><td class="'+cls(df)+'">'+fmtD(df)+'</td><td>'+fmt(d[k],2)+'</td></tr>'}
-  var h=tabs("kogas")+'<div class="card"><h2>KOGAS 발전용 천연가스 요금 (일반발전사업자)</h2><div class="bar">'+monthSelect(list,kSel)+'<span class="sub" style="margin:0">단위 '+unitLabel()+' (원자료 원/GJ)</span></div><div class="tw"><table><tr><th>구분</th><th>'+kSel+'</th><th>전월</th><th>증감</th><th>원자료(원/GJ)</th></tr>'
+  var h=tabs("kogas")+'<div class="card"><h2>KOGAS 발전용 천연가스 요금 (일반발전사업자)</h2><div class="pick-row">'+monthSelect(list,kSel)+'<span class="sub2">단위 '+unitLabel()+' (원자료 원/GJ)</span></div><div class="tw"><table><tr><th>구분</th><th>'+kSel+'</th><th>전월</th><th>증감</th><th>원자료(원/GJ)</th></tr>'
    +row("원료비","fuel")+row("공급비","supply")+row("합계","total")+'</table></div><div class="note">'+esc(K.basis||"")+' · '+esc(K.note||"")+'</div></div>';
   $("#view").innerHTML=h;
   $("#msel").onchange=function(e){kSel=e.target.value;viewKogas()};
@@ -238,7 +255,7 @@ function viewHeat(){
   if(!hSel||list.indexOf(hSel)<0)hSel=list[list.length-1];
   var cur=hist[list.indexOf(hSel)],pi=list.indexOf(hSel),pre=pi>0?hist[pi-1]:null;
   var rows=[["주택용 난방용 단일요금","residential"],["업무용 난방용 단일요금","business"],["공공용 난방용 단일요금","public"]];
-  var h=tabs("heat")+'<div class="card"><h2>열요금 (난방용 단일요금)</h2><div class="bar">'+monthSelect(list,hSel," 적용분")+'<span class="sub" style="margin:0">단위 원/Mcal (VAT 별도) — 단위 선택과 무관</span></div><div class="tw"><table><tr><th>구분</th><th>단일요금</th><th>직전 개정</th><th>증감</th></tr>';
+  var h=tabs("heat")+'<div class="card"><h2>열요금 (난방용 단일요금)</h2><div class="pick-row">'+monthSelect(list,hSel," 적용분")+'<span class="sub2">단위 원/Mcal (VAT 별도) — 단위 선택과 무관</span></div><div class="tw"><table><tr><th>구분</th><th>단일요금</th><th>직전 개정</th><th>증감</th></tr>';
   rows.forEach(function(r){var v=cur[r[1]],p=pre?pre[r[1]]:null,d=p==null?null:v-p;
     h+='<tr><td>'+r[0]+'</td><td>'+fmt(v)+'</td><td>'+fmt(p)+'</td><td class="'+cls(d)+'">'+fmtD(d)+'</td></tr>'});
   h+='</table></div><div class="note">※ 기본요금 — 주택용: '+esc(cur.base.residential)+' · 업무용: '+esc(cur.base.business)+' · 공공용: '+esc(cur.base.public)+'<br>출처: '+esc(H.source||"")+'. 과거 요금 이력은 자료 확보 후 추가 예정입니다.</div></div>';
