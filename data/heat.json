@@ -1,0 +1,17 @@
+{
+ "unit": "원/Mcal",
+ "source": "한국지역난방공사 열요금표(온수, 난방용, 단일요금), VAT 별도",
+ "history": [
+  {
+   "from": "2024-07-01",
+   "residential": 112.32,
+   "business": 145.82,
+   "public": 127.34,
+   "base": {
+    "residential": "계약면적 ㎡당 52.40원",
+    "business": "계약용량 1Mcal/h당 396.79원",
+    "public": "계약용량 1Mcal/h당 361.98원"
+   }
+  }
+ ]
+}
