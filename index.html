@@ -58,12 +58,18 @@ th,td{border:1px solid #e5e7eb;padding:12px;text-align:center;font-size:.875rem;
 th{background:#f8fafc;font-weight:700;color:#334155;line-height:1.4}
 td.l{text-align:left}
 td:first-child{font-weight:700}
+table.gt td{font-weight:400}
+table.gt td.u1{font-weight:700;background:#f8fafc;color:#001f3f}
+table.gt td.u2{font-weight:500;background:#fcfdfe}
+table.gt td.u3{font-weight:400}
 .legend{display:flex;gap:14px;flex-wrap:wrap;margin:0 0 8px;font-size:12px;color:#334155;font-weight:500}
 .legend i{display:inline-block;width:18px;height:3px;vertical-align:middle;margin-right:5px}
 #chart{position:relative;border:1px solid #e5e7eb;padding:1rem;background:#fff}
 #svg{font-family:inherit;display:block}
 #tip{position:absolute;pointer-events:none;background:#fff;border:1px solid #cbd5e1;padding:8px 10px;font-size:12px;box-shadow:0 10px 25px -5px rgba(0,0,0,.15);display:none;z-index:5;white-space:nowrap}
 tr.cur td{font-weight:900;color:#001f3f;background:#eef4fb;border-top:2px solid #001f3f;border-bottom:2px solid #001f3f}
+tr.cur td.up{color:var(--up)}
+tr.cur td.down{color:var(--down)}
 tr.cur td:first-child{border-left:2px solid #001f3f}
 tr.cur td:last-child{border-right:2px solid #001f3f}
 .totop{text-align:center;margin:28px 0 0}
@@ -110,6 +116,7 @@ $("#sites").innerHTML=C.sites.filter(function(x){return x.id!==C.current}).map(f
 function unitLabel(){return state.unit==="m3"?"원/㎥":"원/MJ"}
 function conv(mj){return mj==null?null:(state.unit==="m3"?mj*CF:mj)}
 function fmt(v,d){return v==null?"-":v.toLocaleString("ko-KR",{minimumFractionDigits:d==null?2:d,maximumFractionDigits:d==null?2:d})}
+function fmtDP(d,base){if(d==null||!base)return fmtD(d);var q=d/base*100;return fmtD(d)+" ("+(q>1e-9?"+":q<-1e-9?"-":"")+fmt(Math.abs(q))+"%)"}
 function fmtD(v){if(v==null)return "-";var s=fmt(Math.abs(v));return (v>1e-9?"+":v<-1e-9?"-":"")+s}
 
 
@@ -250,11 +257,23 @@ function viewGas(){
   var list=gasMonths(state.region).sort();
   if(!gasSel||list.indexOf(gasSel)<0)gasSel=list[list.length-1];
   var r=R.regions[state.region],cur=r.months[gasSel+"-01"],pm=prevOf(list,gasSel),pre=pm?r.months[pm+"-01"]:null;
-  var h=tabs("gas")+'<div class="card"><h2>도시가스 요금 상세</h2><div class="ctl"><div class="pick"><span class="lb">조회월</span>'+monthSelect(list,gasSel)+'</div><div class="r">'+unitPick()+regPick()+'</div></div><div class="tw"><table><tr><th>용도</th><th>요금</th><th>전월</th><th>증감</th><th>비고</th></tr>';
-  r.order.forEach(function(k){
-    if(cur[k]==null)return;
-    var v=conv(cur[k]),p=pre&&pre[k]!=null?conv(pre[k]):null,d=p==null?null:v-p;
-    h+='<tr><td>'+esc(k)+'</td><td>'+fmt(v)+'</td><td>'+fmt(p)+'</td><td class="'+cls(d)+'">'+fmtD(d)+'</td><td class="l">'+esc(r.remarks[k]||"")+'</td></tr>';
+  var h=tabs("gas")+'<div class="card"><h2>도시가스 요금 상세</h2><div class="ctl"><div class="pick"><span class="lb">조회월</span>'+monthSelect(list,gasSel)+'</div><div class="r">'+unitPick()+regPick()+'</div></div><div class="tw"><table class="gt"><tr><th colspan="3">용도 구분</th><th>요금</th><th>전월</th><th>증감</th><th>비고</th></tr>';
+  var keys=r.order.filter(function(k){return cur[k]!=null});
+  var P=keys.map(function(k){var q=k.split(" > "),o={k:k,a:q[0]};
+    if(q.length===2){var m=q[1].match(/^(직영충전소(?:\([^)]*\))?)\s+(최대부하|중간부하|경부하)$/);if(m){o.b=m[1];o.c=m[2]}else o.b=q[1]}
+    else if(q.length>=3){o.b=q[1];o.c=q[2]}
+    return o});
+  P.forEach(function(o,i){var n=P[i+1];if(o.b!==undefined&&o.c===undefined&&n&&n.a===o.a&&n.b===o.b&&n.c!==undefined)o.c=""});
+  function run(i,f){var n=1;while(P[i+n]&&f(P[i+n])===f(P[i]))n++;return n}
+  P.forEach(function(o,i){
+    var k=o.k,v=conv(cur[k]),pv=pre&&pre[k]!=null?conv(pre[k]):null,d=pv==null?null:v-pv,pr=P[i-1],u="";
+    if(o.b===undefined){u='<td class="u1" colspan="3">'+esc(o.a)+'</td>'}
+    else{
+      if(!pr||pr.a!==o.a)u+='<td class="u1" rowspan="'+run(i,function(x){return x.a})+'">'+esc(o.a)+'</td>';
+      if(!pr||pr.a!==o.a||pr.b!==o.b)u+='<td class="u2" rowspan="'+run(i,function(x){return x.a+"|"+x.b})+'"'+(o.c===undefined?' colspan="2"':'')+'>'+esc(o.b)+'</td>';
+      if(o.c!==undefined)u+='<td class="u3">'+esc(o.c)+'</td>';
+    }
+    h+='<tr>'+u+'<td>'+fmt(v)+'</td><td>'+fmt(pv)+'</td><td class="'+cls(d)+'">'+fmtDP(d,pv)+'</td><td class="l">'+esc(r.remarks[k]||"")+'</td></tr>';
   });
   h+='</table></div><div class="note">'+esc(r.note||"")+'</div></div>'+'<div class="totop"><button type="button" id="toTop">▲ 맨 위로</button></div>';
   $("#view").innerHTML=h;
@@ -267,10 +286,10 @@ function viewKogas(){
   var list=Object.keys(K.months).sort();
   if(!kSel||list.indexOf(kSel)<0)kSel=list[list.length-1];
   var d=K.months[kSel],pm=prevOf(list,kSel),p=pm?K.months[pm]:null;
-  function row(lab,k){var v=conv(d[k]/1000),pv=p?conv(p[k]/1000):null,df=pv==null?null:v-pv;
-    return '<tr><td>'+lab+'</td><td>'+fmt(v)+'</td><td>'+fmt(pv)+'</td><td class="'+cls(df)+'">'+fmtD(df)+'</td><td>'+fmt(d[k],2)+'</td></tr>'}
+  function row(lab,k,c){var v=conv(d[k]/1000),pv=p?conv(p[k]/1000):null,df=pv==null?null:v-pv;
+    return '<tr'+(c?' class="cur"':'')+'><td>'+lab+'</td><td>'+fmt(v)+'</td><td>'+fmt(pv)+'</td><td class="'+cls(df)+'">'+fmtDP(df,pv)+'</td><td>'+fmt(d[k],2)+'</td></tr>'}
   var h=tabs("kogas")+'<div class="card"><h2>KOGAS 발전용 천연가스 요금 (일반발전사업자)</h2><div class="ctl"><div class="pick"><span class="lb">조회월</span>'+monthSelect(list,kSel)+'</div><div class="r">'+unitPick()+'</div></div><div class="tw"><table><tr><th>구분</th><th>'+kSel+'</th><th>전월</th><th>증감</th><th>원자료(원/GJ)</th></tr>'
-   +row("원료비","fuel")+row("공급비","supply")+row("합계","total")+'</table></div><div class="note">'+esc(K.basis||"")+' · '+esc(K.note||"")+'</div></div>';
+   +row("원료비","fuel")+row("공급비","supply")+row("합계","total",1)+'</table></div><div class="note">'+esc(K.basis||"")+' · '+esc(K.note||"")+'</div></div>';
   $("#view").innerHTML=h;
   $("#msel").onchange=function(e){kSel=e.target.value;viewKogas()};bindUnit(viewKogas);
 }
@@ -281,10 +300,11 @@ function viewHeat(){
   var list=hist.map(function(x){return x.from});
   if(!hSel||list.indexOf(hSel)<0)hSel=list[list.length-1];
   var cur=hist[list.indexOf(hSel)],pi=list.indexOf(hSel),pre=pi>0?hist[pi-1]:null;
-  var rows=[["주택용 난방용 단일요금","residential"],["업무용 난방용 단일요금","business"],["공공용 난방용 단일요금","public"]];
-  var h=tabs("heat")+'<div class="card"><h2>열요금 (기준사업자 한국지역난방공사 · 난방용 단일요금)</h2><div class="ctl"><div class="pick"><span class="lb">적용 시점</span>'+monthSelect(list,hSel," 적용분")+'</div><div class="r"><span class="sub2">단위 원/Mcal (VAT 별도) — 단위 선택과 무관</span></div></div><div class="tw"><table><tr><th>구분</th><th>단일요금</th><th>직전 개정</th><th>증감</th></tr>';
-  rows.forEach(function(r){var v=cur[r[1]],p=pre?pre[r[1]]:null,d=p==null?null:v-p;
-    h+='<tr><td>'+r[0]+'</td><td>'+fmt(v)+'</td><td>'+fmt(p)+'</td><td class="'+cls(d)+'">'+fmtD(d)+'</td></tr>'});
+  var rows=[["주택용 난방용","residential"],["업무용 난방용","business"],["공공용 난방용","public"]];
+  var pm=addM(hSel.slice(0,7),-1), pd=pre?pre.from.slice(2):null;
+  var h=tabs("heat")+'<div class="card"><h2>열요금 (기준사업자 한국지역난방공사 · 난방용 단일요금)</h2><div class="ctl"><div class="pick"><span class="lb">변동 시점</span>'+monthSelect(list,hSel)+'</div><div class="r"><span class="sub2">단위 원/Mcal</span></div></div><div class="tw"><table><tr><th>구분</th><th>당월요금</th><th>전월요금</th><th>증감</th><th>직전개정 요금</th></tr>';
+  rows.forEach(function(r){var v=cur[r[1]],p=heatAt(pm,r[1]),d=p==null?null:v-p,pv=pre?pre[r[1]]:null;
+    h+='<tr><td>'+r[0]+'</td><td>'+fmt(v)+'</td><td>'+fmt(p)+'</td><td class="'+cls(d)+'">'+fmtDP(d,p)+'</td><td>'+(pv==null?'-':fmt(pv)+'<br><span class="sub2">('+pd+')</span>')+'</td></tr>'});
   h+='</table></div><div class="note">※ 기본요금 — 주택용: '+esc(cur.base.residential)+' · 업무용: '+esc(cur.base.business)+' · 공공용: '+esc(cur.base.public)+'<br>열요금은 기준사업자인 한국지역난방공사(한난)의 요금입니다.<br>출처: '+esc(H.source||"")+'. 과거 요금 이력은 자료 확보 후 추가 예정입니다.</div></div>';
   $("#view").innerHTML=h;
   $("#msel").onchange=function(e){hSel=e.target.value;viewHeat()};
