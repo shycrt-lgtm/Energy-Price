@@ -31,11 +31,16 @@ def collapse(text: str) -> str:
     return re.sub(r"\s+", " ", str(text or "")).strip()
 
 
-def to_iso(label: str) -> str:
-    m = re.search(r"(\d{4})\.(\d{2})\.(\d{2})", str(label))
+DATE_RE = r"(\d{4})\s*[.\-/년]\s*(\d{1,2})\s*[.\-/월]\s*(\d{1,2})"
+
+
+def to_iso(label) -> str:
+    if hasattr(label, "strftime"):  # 엑셀 날짜 셀
+        return label.strftime("%Y-%m-%d")
+    m = re.search(DATE_RE, str(label))
     if not m:
         raise ValueError(f"단가변동일을 찾을 수 없음: {label!r}")
-    return f"{m.group(1)}-{m.group(2)}-{m.group(3)}"
+    return f"{m.group(1)}-{int(m.group(2)):02d}-{int(m.group(3)):02d}"
 
 
 def num(value):
@@ -71,15 +76,21 @@ def open_sheet(path):
 
 def find_header(sheet):
     """'A) 2026.09.01' / 'B) 2026.10.01' 이 있는 행과 열 위치를 찾는다."""
-    for r in range(min(sheet.nrows, 12)):
+    for r in range(min(sheet.nrows, 20)):
         values = sheet.row_values(r)
         cols = {}
         for c, cell in enumerate(values):
-            m = re.match(r"\s*([AB])\)", str(cell))
+            m = re.match(r"\s*([AB])\s*[)）]", str(cell))
             if m:
                 cols[m.group(1)] = c
         if len(cols) == 2:
             return r, cols["A"], cols["B"], values
+    # 예비 규칙: 'A)/B)' 표기가 없으면, 날짜가 2개 이상 있는 첫 행의 앞 두 날짜를 전월(A)·당월(B)로 본다
+    for r in range(min(sheet.nrows, 20)):
+        values = sheet.row_values(r)
+        dc = [c for c, cell in enumerate(values) if hasattr(cell, "strftime") or re.search(DATE_RE, str(cell))]
+        if len(dc) >= 2:
+            return r, dc[0], dc[1], values
     raise ValueError("헤더(A)/B) 단가변동일)를 찾을 수 없음")
 
 
@@ -148,12 +159,28 @@ def main(paths):
     if not paths:
         sys.exit(__doc__)
     store = load()
+    failed = []
     for p in paths:
-        sheet = open_sheet(p)
-        region = sheet.name.strip()
-        date_a, date_b, rows, note = parse_sheet(sheet)
+        try:
+            sheet = open_sheet(p)
+            region = sheet.name.strip()
+            date_a, date_b, rows, note = parse_sheet(sheet)
+        except Exception as e:  # 형식이 다른 과거 파일 등은 건너뛰고 계속 진행
+            failed.append(Path(p).name)
+            print(f"[건너뜀] {Path(p).name}: {type(e).__name__}: {e}")
+            try:  # 원인 파악용: 첫 10행의 내용을 보여 준다
+                sh = open_sheet(p)
+                print("   시트명:", sh.name, "행 수:", sh.nrows)
+                for r in range(min(sh.nrows, 10)):
+                    cells = [f"{c}:{str(v).strip()[:24]}" for c, v in enumerate(sh.row_values(r)) if str(v).strip()]
+                    print(f"   행{r}:", " | ".join(cells))
+            except Exception as e2:
+                print("   (내용 확인 실패)", e2)
+            continue
         merge(store, region, date_a, date_b, rows, note)
         print(f"{Path(p).name}: {region} {date_a} -> {date_b}, {len(rows)}개 용도")
+    if failed:
+        print(f"파싱 실패 {len(failed)}건:", ", ".join(failed))
     store["months"] = sorted({m for reg in store["regions"].values() for m in reg["months"]})
     DATA_JSON.parent.mkdir(parents=True, exist_ok=True)
     DATA_JSON.write_text(json.dumps(store, ensure_ascii=False, indent=1), encoding="utf-8")
