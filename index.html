@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>도시가스 요금단가</title>
+<meta name="description" content="삼천리 도시가스 경기·인천 월별 요금단가표(원/MJ, VAT 별도)와 전월 대비 변동">
+<style>
+  :root {
+    --bg: #f6f7f9; --panel: #ffffff; --text: #1d232b; --muted: #637080; --line: #e1e5ea;
+    --accent: #1b5e8c; --accent-soft: #e6f0f7; --up: #b3402a; --up-soft: #fbece8;
+    --down: #1f6f4a; --down-soft: #e6f3ec; --new: #7a5a00; --new-soft: #fbf3d9;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14181d; --panel: #1b2027; --text: #e6e9ed; --muted: #92a0af; --line: #2b323b;
+      --accent: #6db3e0; --accent-soft: #1f3341; --up: #f0907b; --up-soft: #3a2420;
+      --down: #7fd0a2; --down-soft: #1d3328; --new: #e6c35a; --new-soft: #38301a;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", system-ui, sans-serif;
+    font-size: 15px; line-height: 1.5;
+  }
+  .nav { background: var(--panel); border-bottom: 1px solid var(--line); }
+  .nav-inner { max-width: 1040px; margin: 0 auto; padding: 0 16px; display: flex; gap: 4px; overflow-x: auto; }
+  .nav a, .nav span {
+    padding: 12px 14px; font-size: 14px; color: var(--muted); text-decoration: none;
+    white-space: nowrap; border-bottom: 2px solid transparent;
+  }
+  .nav a:hover { color: var(--text); }
+  .nav .current { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+  .nav .unset { opacity: .55; cursor: default; }
+  main { max-width: 1040px; margin: 0 auto; padding: 24px 16px 56px; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .sub { color: var(--muted); font-size: 13px; margin: 0 0 20px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 16px; }
+  select, input[type="search"] {
+    font: inherit; color: var(--text); background: var(--panel);
+    border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px;
+  }
+  input[type="search"] { min-width: 180px; }
+  .tabs { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .tabs button {
+    font: inherit; padding: 8px 18px; border: 0; background: var(--panel); color: var(--muted); cursor: pointer;
+  }
+  .tabs button + button { border-left: 1px solid var(--line); }
+  .tabs button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-left: auto; }
+  .chip {
+    font: inherit; font-size: 13px; padding: 6px 12px; border-radius: 999px; cursor: pointer;
+    border: 1px solid var(--line); background: var(--panel); color: var(--muted);
+  }
+  .chip[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
+  .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 16px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+  .card .label { font-size: 12px; color: var(--muted); }
+  .card .value { font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; margin-top: 2px; }
+  .table-wrap { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; min-width: 640px; }
+  th, td { padding: 9px 14px; text-align: right; font-variant-numeric: tabular-nums; border-bottom: 1px solid var(--line); }
+  th { font-size: 12px; font-weight: 600; color: var(--muted); background: var(--bg); position: sticky; top: 0; }
+  th:first-child, td:first-child { text-align: left; }
+  tr:last-child td { border-bottom: 0; }
+  td.name { font-variant-numeric: normal; }
+  td.name .parent { color: var(--muted); font-size: 12px; display: block; }
+  td.name .remark { color: var(--muted); font-size: 12px; margin-left: 6px; }
+  .delta-up { color: var(--up); font-weight: 600; }
+  .delta-down { color: var(--down); font-weight: 600; }
+  .delta-zero { color: var(--muted); }
+  tr.row-up td { background: var(--up-soft); }
+  tr.row-down td { background: var(--down-soft); }
+  tr.row-new td { background: var(--new-soft); }
+  .badge { font-size: 11px; padding: 1px 6px; border-radius: 4px; background: var(--new-soft); color: var(--new); margin-left: 6px; }
+  .note { margin-top: 14px; font-size: 13px; color: var(--muted); }
+  .empty { padding: 28px; text-align: center; color: var(--muted); }
+  footer { margin-top: 28px; font-size: 12px; color: var(--muted); }
+</style>
+</head>
+<body>
+<nav class="nav" aria-label="사이트 이동"><div class="nav-inner" id="nav"></div></nav>
+<main>
+  <h1>도시가스 요금단가</h1>
+  <p class="sub" id="sub"></p>
+
+  <div class="controls">
+    <select id="month" aria-label="단가변동일"></select>
+    <div class="tabs" id="regions" role="group" aria-label="지역"></div>
+    <input type="search" id="q" placeholder="용도 검색 (예: 열병합)" aria-label="용도 검색">
+    <div class="chips">
+      <button class="chip" id="chip-changed" aria-pressed="false">변동 항목만</button>
+      <button class="chip" id="chip-energy" aria-pressed="false">집단에너지·발전 관련</button>
+    </div>
+  </div>
+
+  <div class="summary" id="summary"></div>
+  <div class="table-wrap"><table>
+    <thead><tr>
+      <th>용도</th><th id="th-prev">전월</th><th id="th-cur">당월</th><th>증감</th><th>증감률</th>
+    </tr></thead>
+    <tbody id="body"></tbody>
+  </table></div>
+  <p class="note" id="note"></p>
+  <footer>출처: 삼천리 고객센터 도시가스 요금단가표. 단위 원/MJ, VAT 별도. 요금단가는 이전 월과 비교하여 변동이 있을 때만 표시될 수 있으므로 원문을 함께 확인하시기 바랍니다.</footer>
+</main>
+
+<script src="site.config.js"></script>
+<script src="data/rates.js"></script>
+<script>
+(function () {
+  var D = window.RATES, C = window.SITE_CONFIG;
+  var state = { month: D.months[D.months.length - 1], region: Object.keys(D.regions)[0], q: "", changed: false, energy: false };
+  var ENERGY = /열병합|CHP|HOB|연료전지|집단에너지|발전/;
+
+  function $(id) { return document.getElementById(id); }
+  function fmt(n) { return n == null ? "-" : n.toFixed(4); }
+  function fmtDelta(n) { return (n > 0 ? "+" : n < 0 ? "−" : "") + Math.abs(n).toFixed(4); }
+  function fmtPct(n) { return (n > 0 ? "+" : n < 0 ? "−" : "") + Math.abs(n).toFixed(2) + "%"; }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function monthLabel(iso) { return iso.slice(0, 4) + "년 " + parseInt(iso.slice(5, 7), 10) + "월"; }
+
+  function buildNav() {
+    $("nav").innerHTML = C.sites.map(function (s) {
+      if (s.id === C.current) return '<span class="current" aria-current="page">' + esc(s.name) + "</span>";
+      if (!s.url) return '<span class="unset" title="주소 미설정">' + esc(s.name) + "</span>";
+      return '<a href="' + esc(s.url) + '">' + esc(s.name) + "</a>";
+    }).join("");
+  }
+
+  function buildControls() {
+    $("month").innerHTML = D.months.slice().reverse().map(function (m) {
+      return '<option value="' + m + '">' + monthLabel(m) + " 단가</option>";
+    }).join("");
+    $("month").value = state.month;
+    $("regions").innerHTML = Object.keys(D.regions).map(function (r) {
+      return '<button type="button" data-r="' + r + '" aria-pressed="' + (r === state.region) + '">' + r + "</button>";
+    }).join("");
+  }
+
+  function prevMonthOf(reg, month) {
+    var ms = Object.keys(reg.months).sort(), i = ms.indexOf(month);
+    return i > 0 ? ms[i - 1] : null;
+  }
+
+  function render() {
+    var reg = D.regions[state.region], cur = reg.months[state.month] || {};
+    var prevM = prevMonthOf(reg, state.month), prev = prevM ? reg.months[prevM] : {};
+    $("th-cur").textContent = monthLabel(state.month);
+    $("th-prev").textContent = prevM ? monthLabel(prevM) : "전월";
+    $("sub").textContent = state.region + " · " + state.month + " 시행 · 단위 " + D.unit;
+
+    var rows = [], up = 0, down = 0, same = 0, sumUp = 0;
+    reg.order.forEach(function (key) {
+      var b = cur[key], a = prev[key];
+      if (b == null) return;
+      var isNew = a == null && prevM != null;
+      var d = a != null ? b - a : 0, pct = a ? d / a * 100 : 0;
+      var kind = isNew ? "new" : d > 0.00005 ? "up" : d < -0.00005 ? "down" : "zero";
+      if (kind === "up") { up++; sumUp += d; } else if (kind === "down") down++; else if (kind === "zero") same++;
+      rows.push({ key: key, a: a, b: b, d: d, pct: pct, kind: kind });
+    });
+
+    var shown = rows.filter(function (r) {
+      if (state.changed && r.kind === "zero") return false;
+      if (state.energy && !ENERGY.test(r.key)) return false;
+      if (state.q && r.key.replace(/\s/g, "").indexOf(state.q.replace(/\s/g, "")) < 0) return false;
+      return true;
+    });
+
+    $("summary").innerHTML =
+      card("용도 수", rows.length) + card("인상", up) + card("인하", down) + card("동결", same) +
+      card("평균 인상폭", up ? "+" + (sumUp / up).toFixed(4) : "-");
+
+    $("body").innerHTML = shown.length ? shown.map(function (r) {
+      var parts = r.key.split(" > "), name = parts.pop(), parent = parts.join(" › ");
+      var remark = reg.remarks[r.key] ? '<span class="remark">' + esc(reg.remarks[r.key]) + "</span>" : "";
+      var cls = r.kind === "up" ? "delta-up" : r.kind === "down" ? "delta-down" : "delta-zero";
+      return '<tr class="row-' + r.kind + '"><td class="name">' + (parent ? '<span class="parent">' + esc(parent) + "</span>" : "") +
+        esc(name) + (r.kind === "new" ? '<span class="badge">신설</span>' : "") + remark + "</td>" +
+        "<td>" + fmt(r.a) + "</td><td>" + fmt(r.b) + "</td>" +
+        '<td class="' + cls + '">' + (r.a == null ? "-" : fmtDelta(r.d)) + "</td>" +
+        '<td class="' + cls + '">' + (r.a == null ? "-" : fmtPct(r.pct)) + "</td></tr>";
+    }).join("") : '<tr><td colspan="5" class="empty">조건에 맞는 용도가 없습니다.</td></tr>';
+
+    $("note").textContent = reg.note ? "▷ " + reg.note : "";
+  }
+
+  function card(label, value) {
+    return '<div class="card"><div class="label">' + label + '</div><div class="value">' + value + "</div></div>";
+  }
+
+  buildNav(); buildControls(); render();
+  $("month").addEventListener("change", function (e) { state.month = e.target.value; render(); });
+  $("regions").addEventListener("click", function (e) {
+    var r = e.target.getAttribute("data-r"); if (!r) return;
+    state.region = r;
+    Array.prototype.forEach.call($("regions").children, function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-r") === r); });
+    render();
+  });
+  $("q").addEventListener("input", function (e) { state.q = e.target.value.trim(); render(); });
+  function toggle(id, k) {
+    $(id).addEventListener("click", function () {
+      state[k] = !state[k]; this.setAttribute("aria-pressed", state[k]); render();
+    });
+  }
+  toggle("chip-changed", "changed"); toggle("chip-energy", "energy");
+})();
+</script>
+</body>
+</html>
