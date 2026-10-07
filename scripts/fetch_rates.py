@@ -28,7 +28,7 @@ import parse_rates as P  # noqa: E402
 BASE = "https://ecpgw.samchully.co.kr/res/files/contents/docs/prices/{year}/{name}"
 REGIONS = ("경기", "인천")
 EXTS = ("xlsx", "xls")
-SEQS = (1, 2, 3)
+SEQS = (0, 1, 2, 3)  # 2025년 파일은 _00 부터 시작
 MAGIC = {"xlsx": b"PK", "xls": b"\xd0\xcf\x11\xe0"}
 INBOX = P.ROOT / "inbox"
 
