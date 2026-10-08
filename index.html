@@ -77,6 +77,9 @@ tr.cur td.up{color:var(--up)}
 tr.cur td.down{color:var(--down)}
 tr.cur td:first-child{border-left:2px solid #001f3f}
 tr.cur td:last-child{border-right:2px solid #001f3f}
+td.cm,th.cm{border-left:2px solid #001f3f;border-right:2px solid #001f3f}
+th.cmT{border-top:2px solid #001f3f}
+td.cmB{border-bottom:2px solid #001f3f}
 .totop{text-align:center;margin:28px 0 0}
 .totop button{background:#001f3f;color:#fff;border:0;border-radius:4px;padding:10px 22px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.2)}
 .totop button:hover{background:#1e293b}
@@ -271,7 +274,7 @@ function viewGas(){
   var list=gasMonths(state.region).sort();
   if(!gasSel||list.indexOf(gasSel)<0)gasSel=list[list.length-1];
   var r=R.regions[state.region],cur=r.months[gasSel+"-01"],pm=prevOf(list,gasSel),pre=pm?r.months[pm+"-01"]:null;
-  var h=tabs("gas")+'<div class="card"><h2>도시가스 요금 상세</h2><div class="ctl"><div class="pick"><span class="lb">조회월</span>'+monthSelect(list,gasSel)+'<button type="button" class="btnlatest" id="btnLatest">가장 최근 요금('+list[list.length-1]+')으로 →</button></div><div class="r">'+regPick()+unitPick()+'</div></div><div class="tw"><table class="gt"><colgroup><col style="width:10%"><col style="width:11%"><col style="width:14%"><col style="width:8%"><col style="width:8%"><col style="width:16%"><col style="width:33%"></colgroup><tr><th colspan="3">용도 구분</th><th>요금</th><th>전월</th><th>증감</th><th>비고</th></tr>';
+  var h=tabs("gas")+'<div class="card"><h2>도시가스 요금 상세</h2><div class="ctl"><div class="pick"><span class="lb">조회월</span>'+monthSelect(list,gasSel)+'<button type="button" class="btnlatest" id="btnLatest">가장 최근 요금('+list[list.length-1]+')으로 →</button></div><div class="r">'+regPick()+unitPick()+'</div></div><div class="tw"><table class="gt"><colgroup><col style="width:10%"><col style="width:11%"><col style="width:14%"><col style="width:8%"><col style="width:8%"><col style="width:16%"><col style="width:33%"></colgroup><tr><th colspan="3">용도 구분</th><th class="cm cmT">당월</th><th>전월</th><th>증감</th><th>비고</th></tr>';
   var REMARK_ADD={"업무난방":"건축물 난방","영업용1":"음식점, 병원, 상가 등 보편적 상업/영업용 시설","영업용2":"목욕탕, 스포츠시설, 폐기물처리시설"};
   var DISP={"공동주택열병합":["열병합","공동주택"],"공동주택등열병합":["열병합","공동주택 등"],"공동주택외열병합":["열병합","공동주택 외"],"지역열병합집단에너지사업허가":["열병합","집단에너지"],"지역열병합(CHP)":["열병합","집단에너지"],"지역열병합(HOB)집단에너지사업허가":["HOB","집단에너지"],"지역열병합(HOB)'03.1.1이후신규(추가)분한함":["HOB","집단에너지(신규)"],"공동주택열병합(열전용보일러)":["HOB","공동주택"],"공동주택외열병합(열전용보일러)":["HOB","공동주택 외"]};
   REMARK_ADD["지역열병합(HOB)'03.1.1이후신규(추가)분한함"]="'03.1.1 이후 신규(추가)분 한정";
@@ -291,10 +294,11 @@ function viewGas(){
       if(!pr||pr.a!==o.a||pr.b!==o.b)u+='<td class="u2" rowspan="'+run(i,function(x){return x.a+"|"+x.b})+'"'+(o.c===undefined?' colspan="2"':'')+'>'+esc(o.b)+'</td>';
       if(o.c!==undefined)u+='<td class="u3">'+esc(o.c)+'</td>';
     }
-    h+='<tr>'+u+'<td>'+fmt(v)+'</td><td>'+fmt(pv)+'</td><td class="nw '+cls(d)+'">'+fmtDP(d,pv)+'</td><td class="nw">'+esc(r.remarks[k]||REMARK_ADD[k]||"")+'</td></tr>';
+    h+='<tr>'+u+'<td class="cm">'+fmt(v)+'</td><td>'+fmt(pv)+'</td><td class="nw '+cls(d)+'">'+fmtDP(d,pv)+'</td><td class="nw">'+esc(r.remarks[k]||REMARK_ADD[k]||"")+'</td></tr>';
   });
   h+='</table></div><div class="note">'+esc(r.note||"")+'</div></div>'+'<div class="totop"><button type="button" id="toTop">▲ 맨 위로</button></div>';
   $("#view").innerHTML=h;
+  (function(){var c=document.querySelectorAll("#view td.cm");if(c.length)c[c.length-1].classList.add("cmB")})();
   $("#msel").onchange=function(e){gasSel=e.target.value;viewGas()};$("#btnLatest").onclick=function(){gasSel=list[list.length-1];viewGas()};
   bindReg(viewGas);bindUnit(viewGas);$("#toTop").onclick=function(){window.scrollTo({top:0,behavior:"smooth"})};
 }
@@ -320,11 +324,12 @@ function viewHeat(){
   var cur=hist[list.indexOf(hSel)],pi=list.indexOf(hSel),pre=pi>0?hist[pi-1]:null;
   var rows=[["주택용 난방용","residential"],["업무용 난방용","business"],["공공용 난방용","public"]];
   var pm=addM(hSel.slice(0,7),-1), pd=pre?pre.from.slice(2):null;
-  var h=tabs("heat")+'<div class="card"><h2>열요금 (기준사업자 한국지역난방공사 · 난방용 단일요금)</h2><div class="ctl"><div class="pick"><span class="lb">변동 시점</span>'+monthSelect(list,hSel)+'<button type="button" class="btnlatest" id="btnLatest">가장 최근 요금('+list[list.length-1]+')으로 →</button></div><div class="r"><span class="sub2">단위 원/Mcal</span></div></div><div class="tw"><table class="fx"><tr><th>구분</th><th>'+hSel+'부터</th><th>'+hSel+' 이전</th><th>증감</th><th>직전 개정시기</th></tr>';
+  var h=tabs("heat")+'<div class="card"><h2>열요금 (기준사업자 한국지역난방공사 · 난방용 단일요금)</h2><div class="ctl"><div class="pick"><span class="lb">변동 시점</span>'+monthSelect(list,hSel)+'<button type="button" class="btnlatest" id="btnLatest">가장 최근 요금('+list[list.length-1]+')으로 →</button></div><div class="r"><span class="sub2">단위 원/Mcal</span></div></div><div class="tw"><table class="fx"><tr><th>구분</th><th class="cm cmT">'+hSel+'부터</th><th>'+hSel+' 이전</th><th>증감</th><th>직전 개정시기</th></tr>';
   rows.forEach(function(r){var v=cur[r[1]],p=heatAt(pm,r[1]),d=p==null?null:v-p,pv=pre?pre[r[1]]:null;
-    h+='<tr><td>'+r[0]+'</td><td>'+fmt(v)+'</td><td>'+fmt(p)+'</td><td class="'+cls(d)+'">'+fmtDP(d,p,1)+'</td><td>'+(pd||'-')+'</td></tr>'});
+    h+='<tr><td>'+r[0]+'</td><td class="cm">'+fmt(v)+'</td><td>'+fmt(p)+'</td><td class="'+cls(d)+'">'+fmtDP(d,p,1)+'</td><td>'+(pd||'-')+'</td></tr>'});
   h+='</table></div><div class="note">※ 기본요금 — 주택용: '+esc(cur.base.residential)+' · 업무용: '+esc(cur.base.business)+' · 공공용: '+esc(cur.base.public)+'<br>열요금은 기준사업자인 한국지역난방공사(한난)의 요금입니다.<br>출처: '+esc(H.source||"")+'. 과거 요금 이력은 자료 확보 후 추가 예정입니다.</div></div>';
   $("#view").innerHTML=h;
+  (function(){var c=document.querySelectorAll("#view td.cm");if(c.length)c[c.length-1].classList.add("cmB")})();
   $("#msel").onchange=function(e){hSel=e.target.value;viewHeat()};$("#btnLatest").onclick=function(){hSel=list[list.length-1];viewHeat()};
 }
 
