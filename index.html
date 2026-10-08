@@ -128,6 +128,7 @@ function unitLabel(){return state.unit==="m3"?"원/㎥":"원/MJ"}
 function conv(mj){return mj==null?null:(state.unit==="m3"?mj*CF:mj)}
 function fmt(v,d){return v==null?"-":v.toLocaleString("ko-KR",{minimumFractionDigits:d==null?2:d,maximumFractionDigits:d==null?2:d})}
 function fmtDP(d,base,br){if(d==null||!base)return fmtD(d);var q=d/base*100;return fmtD(d)+(br?"<br>":" ")+"("+(q>1e-9?"+":q<-1e-9?"-":"")+fmt(Math.abs(q))+"%)"}
+function pctS(d,base){if(d==null||!base)return "";var q=d/base*100;return (q>1e-9?"+":q<-1e-9?"-":"")+fmt(Math.abs(q))+"%"}
 function fmtD(v){if(v==null)return "-";var s=fmt(Math.abs(v));return (v>1e-9?"+":v<-1e-9?"-":"")+s}
 
 
@@ -184,7 +185,7 @@ function viewHome(){
   var html='';
   html+='<div class="card"><h2>요금 변동 사항 ('+latest+')</h2><div class="cbox"><ul id="cm"></ul></div></div>';
   html+='<div class="card"><h2>최근 24개월 요금 추이 ('+months[0]+' ~ '+latest+', 도시가스 '+state.region+')</h2><div class="ctl"><div class="r">'+regPick()+unitPick()+'</div></div><div class="legend">'+SERIES.map(function(s){return '<span>'+swatch(s)+s.name+'</span>'}).join("")+'</div><div id="chart"><div id="cs"><svg id="svg"></svg><div id="tip"></div></div></div><div class="note">열요금 선이 도시가스 주택난방용 선보다 위에 있으면 열요금이 더 비싼 구간입니다.(개별난방 보일러 효율 90%, 열량 '+KCAL.toLocaleString("ko-KR")+'kcal/㎥ 기준)</div></div>';
-  html+='<div class="card"><h2>그래프 수치 (최근 12개월, '+unitLabel()+', 열요금 원/Mcal)</h2><div class="tw"><table id="tbl" class="eq"></table></div><div class="note">빈 칸(-)은 해당 월 데이터가 아직 수집되지 않은 구간입니다. 열병합용 = '+esc(KEYS["열병합용"][state.region])+'. 굵은 테두리 행은 당월('+latest+')입니다. 열요금은 기준사업자(한국지역난방공사, 한난) 요금입니다.</div></div>';
+  html+='<div class="card"><h2>요금표 (최근 12개월, '+unitLabel()+', 열요금 원/Mcal)</h2><div class="tw"><table id="tbl" class="eq"></table></div><div class="note">빈 칸(-)은 해당 월 데이터가 아직 수집되지 않은 구간입니다. 열병합용 = '+esc(KEYS["열병합용"][state.region])+'. 굵은 테두리 행은 당월('+latest+')입니다. 열요금은 기준사업자(한국지역난방공사, 한난) 요금입니다.</div></div>';
   html+='<div><h2>요금상세</h2>'+tabs("none")+'</div>'+'<div class="totop"><button type="button" id="toTop">▲ 맨 위로</button></div>';
   $("#view").innerHTML=html;
   bindReg(render);bindUnit(render);$("#toTop").onclick=function(){window.scrollTo({top:0,behavior:"smooth"})};
@@ -200,7 +201,7 @@ function comments(){
     Object.keys(KEYS).forEach(function(lab){
       var k=KEYS[lab][g]; if(cur[k]==null||pre[k]==null)return;
       if(Math.abs(cur[k]-pre[k])<1e-9){ch.push(lab+" "+fmt(conv(cur[k]))+"(0.00)");return}
-      ch.push(lab+" "+fmt(conv(pre[k]))+"→"+fmt(conv(cur[k]))+"("+fmtD(conv(cur[k])-conv(pre[k]))+")");
+      ch.push(lab+" "+fmt(conv(pre[k]))+"→"+fmt(conv(cur[k]))+"("+fmtD(conv(cur[k])-conv(pre[k]))+", "+pctS(conv(cur[k])-conv(pre[k]),conv(pre[k]))+")");
     });
     Object.keys(cur).forEach(function(k){if(pre[k]!=null&&Math.abs(cur[k]-pre[k])>1e-9)n++});
     out.push("도시가스 "+g+": 전월 대비 "+n+"개 용도 요금 변동"+(ch.length?". "+ch.join(", ")+" ("+unitLabel()+")":""));
@@ -208,11 +209,11 @@ function comments(){
   var kc=kogasMJ(latest),kp=kogasMJ(prev);
   if(kc!=null&&kp!=null)out.push("KOGAS 발전용(일반발전): "+fmt(conv(kp))+"→"+fmt(conv(kc))+" "+unitLabel()+" ("+fmtD(conv(kc)-conv(kp))+", "+fmtD((kc/kp-1)*100)+"%)");
   var hc=heatAt(latest,"residential"),hp=heatAt(prev,"residential");
-  if(hc!=null)out.push(hc===hp?"열요금(기준사업자 한난) 주택용 난방 단일요금: "+fmt(hc)+" 원/Mcal, 전월과 동일":"열요금(기준사업자 한난) 주택용 난방 단일요금: "+fmt(hp)+"→"+fmt(hc)+" 원/Mcal");
+  if(hc!=null)out.push(hc===hp?"열요금(기준사업자) 주택용 난방 단일요금: "+fmt(hc)+" 원/Mcal, 전월과 동일":"열요금(기준사업자) 주택용 난방 단일요금: "+fmt(hp)+"→"+fmt(hc)+" 원/Mcal ("+fmtD(hc-hp)+", "+pctS(hc-hp,hp)+")");
   $("#cm").innerHTML=out.map(function(s){return "<li>"+esc(s)+"</li>"}).join("");
 }
 function table(months){
-  var h='<tr><th rowspan="2">월</th><th colspan="4">도시가스</th><th>KOGAS 발전용</th><th>열요금<br><small style="font-weight:400;color:#64748b">(기준사업자 한난)</small></th></tr><tr>'+SERIES.map(function(s){return '<th>'+s.sub+'</th>'}).join("")+'</tr>';
+  var h='<tr><th rowspan="2">월</th><th colspan="4">도시가스</th><th>KOGAS 발전용</th><th>열요금<br><small style="font-weight:400;color:#64748b">(기준사업자)</small></th></tr><tr>'+SERIES.map(function(s){return '<th>'+s.sub+'</th>'}).join("")+'</tr>';
   months.slice().reverse().forEach(function(m,ix){
     h+='<tr'+(ix===0?' class="cur"':'')+'><td>'+m+'</td>'+SERIES.map(function(s){return '<td>'+fmt(s.get(m))+'</td>'}).join("")+'</tr>';
   });
@@ -284,7 +285,7 @@ function viewGas(){
       if(!pr||pr.a!==o.a||pr.b!==o.b)u+='<td class="u2" rowspan="'+run(i,function(x){return x.a+"|"+x.b})+'"'+(o.c===undefined?' colspan="2"':'')+'>'+esc(o.b)+'</td>';
       if(o.c!==undefined)u+='<td class="u3">'+esc(o.c)+'</td>';
     }
-    h+='<tr>'+u+'<td>'+fmt(v)+'</td><td>'+fmt(pv)+'</td><td class="'+cls(d)+'">'+fmtDP(d,pv)+'</td><td class="l">'+esc(r.remarks[k]||"")+'</td></tr>';
+    h+='<tr>'+u+'<td>'+fmt(v)+'</td><td>'+fmt(pv)+'</td><td class="'+cls(d)+'">'+fmtDP(d,pv)+'</td><td>'+esc(r.remarks[k]||"")+'</td></tr>';
   });
   h+='</table></div><div class="note">'+esc(r.note||"")+'</div></div>'+'<div class="totop"><button type="button" id="toTop">▲ 맨 위로</button></div>';
   $("#view").innerHTML=h;
@@ -313,7 +314,7 @@ function viewHeat(){
   var cur=hist[list.indexOf(hSel)],pi=list.indexOf(hSel),pre=pi>0?hist[pi-1]:null;
   var rows=[["주택용 난방용","residential"],["업무용 난방용","business"],["공공용 난방용","public"]];
   var pm=addM(hSel.slice(0,7),-1), pd=pre?pre.from.slice(2):null;
-  var h=tabs("heat")+'<div class="card"><h2>열요금 (기준사업자 한국지역난방공사 · 난방용 단일요금)</h2><div class="ctl"><div class="pick"><span class="lb">변동 시점</span>'+monthSelect(list,hSel)+'<button type="button" class="btnlatest" id="btnLatest">가장 최근 요금('+list[list.length-1]+')으로 →</button></div><div class="r"><span class="sub2">단위 원/Mcal</span></div></div><div class="tw"><table class="fx"><tr><th>구분</th><th>당월요금</th><th>직전요금</th><th>증감</th><th>직전 개정시기</th></tr>';
+  var h=tabs("heat")+'<div class="card"><h2>열요금 (기준사업자 한국지역난방공사 · 난방용 단일요금)</h2><div class="ctl"><div class="pick"><span class="lb">변동 시점</span>'+monthSelect(list,hSel)+'<button type="button" class="btnlatest" id="btnLatest">가장 최근 요금('+list[list.length-1]+')으로 →</button></div><div class="r"><span class="sub2">단위 원/Mcal</span></div></div><div class="tw"><table class="fx"><tr><th>구분</th><th>'+hSel+'부터</th><th>'+hSel+' 이전</th><th>증감</th><th>직전 개정시기</th></tr>';
   rows.forEach(function(r){var v=cur[r[1]],p=heatAt(pm,r[1]),d=p==null?null:v-p,pv=pre?pre[r[1]]:null;
     h+='<tr><td>'+r[0]+'</td><td>'+fmt(v)+'</td><td>'+fmt(p)+'</td><td class="'+cls(d)+'">'+fmtDP(d,p,1)+'</td><td>'+(pd||'-')+'</td></tr>'});
   h+='</table></div><div class="note">※ 기본요금 — 주택용: '+esc(cur.base.residential)+' · 업무용: '+esc(cur.base.business)+' · 공공용: '+esc(cur.base.public)+'<br>열요금은 기준사업자인 한국지역난방공사(한난)의 요금입니다.<br>출처: '+esc(H.source||"")+'. 과거 요금 이력은 자료 확보 후 추가 예정입니다.</div></div>';
