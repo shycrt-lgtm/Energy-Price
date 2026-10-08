@@ -274,7 +274,7 @@ function viewGas(){
   var list=gasMonths(state.region).sort();
   if(!gasSel||list.indexOf(gasSel)<0)gasSel=list[list.length-1];
   var r=R.regions[state.region],cur=r.months[gasSel+"-01"],pm=prevOf(list,gasSel),pre=pm?r.months[pm+"-01"]:null;
-  var h=tabs("gas")+'<div class="card"><h2>도시가스 요금 상세</h2><div class="ctl"><div class="pick"><span class="lb">조회월</span>'+monthSelect(list,gasSel)+'<button type="button" class="btnlatest" id="btnLatest">가장 최근 요금('+list[list.length-1]+')으로 →</button></div><div class="r">'+regPick()+unitPick()+'</div></div><div class="tw"><table class="gt"><colgroup><col style="width:10%"><col style="width:11%"><col style="width:14%"><col style="width:8%"><col style="width:8%"><col style="width:16%"><col style="width:33%"></colgroup><tr><th colspan="3">용도 구분</th><th class="cm cmT">당월</th><th>전월</th><th>증감</th><th>비고</th></tr>';
+  var h=tabs("gas")+'<div class="card"><h2>도시가스 요금 상세</h2><div class="ctl"><div class="pick"><span class="lb">조회월</span>'+monthSelect(list,gasSel)+'<button type="button" class="btnlatest" id="btnLatest">가장 최근 요금('+list[list.length-1]+')으로 →</button></div><div class="r">'+regPick()+unitPick()+'</div></div><div class="tw"><table class="gt"><colgroup><col style="width:9%"><col style="width:10%"><col style="width:9%"><col style="width:10%"><col style="width:10%"><col style="width:16%"><col style="width:36%"></colgroup><tr><th colspan="3">용도 구분</th><th class="cm cmT">당월</th><th>전월</th><th>증감</th><th>비고</th></tr>';
   var REMARK_ADD={"업무난방":"건축물 난방","영업용1":"음식점, 병원, 상가 등 보편적 상업/영업용 시설","영업용2":"목욕탕, 스포츠시설, 폐기물처리시설"};
   var DISP={"공동주택열병합":["열병합","공동주택"],"공동주택등열병합":["열병합","공동주택 등"],"공동주택외열병합":["열병합","공동주택 외"],"지역열병합집단에너지사업허가":["열병합","집단에너지"],"지역열병합(CHP)":["열병합","집단에너지"],"지역열병합(HOB)집단에너지사업허가":["HOB","집단에너지"],"지역열병합(HOB)'03.1.1이후신규(추가)분한함":["HOB","집단에너지(신규)"],"공동주택열병합(열전용보일러)":["HOB","공동주택"],"공동주택외열병합(열전용보일러)":["HOB","공동주택 외"]};
   REMARK_ADD["지역열병합(HOB)'03.1.1이후신규(추가)분한함"]="'03.1.1 이후 신규(추가)분 한정";
@@ -285,18 +285,19 @@ function viewGas(){
     return o});
   P.forEach(function(o,i){var n=P[i+1];if(o.b!==undefined&&o.c===undefined&&n&&n.a===o.a&&n.b===o.b&&n.c!==undefined)o.c=""});
   P.forEach(function(o){var m=DISP[o.k];if(m){o.a=m[0];o.b=m[1];o.c=undefined}});
+  function lab(t){t=String(t).replace(/^(동절기|하절기|기타월)\([^)]*\)$/,"$1");return esc(t).replace("냉난방공조용","냉난방<br>공조용").replace("특별단가(군사시설)","특별단가<br>(군사시설)")}
   function run(i,f){var n=1;while(P[i+n]&&f(P[i+n])===f(P[i]))n++;return n}
   P.forEach(function(o,i){
     var k=o.k,v=conv(cur[k]),pv=pre&&pre[k]!=null?conv(pre[k]):null,d=pv==null?null:v-pv,pr=P[i-1],u="";
-    if(o.b===undefined){u='<td class="u1" colspan="3">'+esc(o.a)+'</td>'}
+    if(o.b===undefined){u='<td class="u1" colspan="3">'+lab(o.a)+'</td>'}
     else{
-      if(!pr||pr.a!==o.a)u+='<td class="u1" rowspan="'+run(i,function(x){return x.a})+'">'+esc(o.a)+'</td>';
-      if(!pr||pr.a!==o.a||pr.b!==o.b)u+='<td class="u2" rowspan="'+run(i,function(x){return x.a+"|"+x.b})+'"'+(o.c===undefined?' colspan="2"':'')+'>'+esc(o.b)+'</td>';
-      if(o.c!==undefined)u+='<td class="u3">'+esc(o.c)+'</td>';
+      if(!pr||pr.a!==o.a)u+='<td class="u1" rowspan="'+run(i,function(x){return x.a})+'">'+lab(o.a)+'</td>';
+      if(!pr||pr.a!==o.a||pr.b!==o.b)u+='<td class="u2" rowspan="'+run(i,function(x){return x.a+"|"+x.b})+'"'+(o.c===undefined?' colspan="2"':'')+'>'+lab(o.b)+'</td>';
+      if(o.c!==undefined)u+='<td class="u3">'+lab(o.c)+'</td>';
     }
     h+='<tr>'+u+'<td class="cm">'+fmt(v)+'</td><td>'+fmt(pv)+'</td><td class="nw '+cls(d)+'">'+fmtDP(d,pv)+'</td><td class="nw">'+esc(r.remarks[k]||REMARK_ADD[k]||"")+'</td></tr>';
   });
-  h+='</table></div><div class="note">'+esc(r.note||"")+'</div></div>'+'<div class="totop"><button type="button" id="toTop">▲ 맨 위로</button></div>';
+  h+='</table></div><div class="note">※ 냉난방공조용 구분: 동절기(12~3월), 하절기(5~9월), 기타월(4,10,11월)</div><div class="note">'+esc(r.note||"")+'</div></div>'+'<div class="totop"><button type="button" id="toTop">▲ 맨 위로</button></div>';
   $("#view").innerHTML=h;
   (function(){var c=document.querySelectorAll("#view td.cm");if(c.length)c[c.length-1].classList.add("cmB")})();
   $("#msel").onchange=function(e){gasSel=e.target.value;viewGas()};$("#btnLatest").onclick=function(){gasSel=list[list.length-1];viewGas()};
