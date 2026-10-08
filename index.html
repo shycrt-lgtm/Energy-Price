@@ -103,7 +103,7 @@ footer{color:#64748b;font-size:12px;margin-top:28px}
 </header>
 <div class="wrap">
 <div id="view"></div>
-<footer>도시가스: 삼천리 단가변동표(VAT 별도) · KOGAS: 발전용 천연가스 요금 단가(일반발전사업자, 원/GJ 고시) · 열요금: 한국지역난방공사(VAT 별도). 도시가스·KOGAS는 선택 단위로 통일 표시, 열요금은 원/Mcal.</footer>
+<footer id="ft">도시가스: 삼천리 단가변동표(VAT 별도) · KOGAS: 발전용 천연가스 요금 단가(일반발전사업자, 원/GJ 고시) · 열요금: 한국지역난방공사(VAT 별도). 도시가스·KOGAS는 선택 단위로 통일 표시, 열요금은 원/Mcal.</footer>
 </div>
 <script src="site.config.js"></script>
 <script src="data/rates.js"></script>
@@ -148,6 +148,7 @@ window.addEventListener("hashchange",function(){render();window.scrollTo(0,0)});
 function render(){
   $("#sub").innerHTML="기준월: <b>"+(latest?latest.slice(0,4)+"년 "+(+latest.slice(5))+"월":"-")+"</b> | 에너지사업총괄";
   var r=route();
+  $("#ft").style.display=(r==="gas"||r==="kogas"||r==="heat")?"none":"";
   if(r==="gas")viewGas();else if(r==="kogas")viewKogas();else if(r==="heat")viewHeat();else viewHome();
 }
 function tabs(cur){
