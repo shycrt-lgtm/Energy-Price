@@ -3,339 +3,409 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>에너지 단가</title>
+<title>TMS</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ko.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
-/* KPX-Daily-Report · TMS 와 동일한 톤: 흰 배경 · Noto Sans KR · 네이비(#001f3f) 헤더 · 얇은 회색 격자 표 */
-:root{--line:#e5e7eb;--mute:#64748b;--up:#dc2626;--down:#059669}
-*{box-sizing:border-box}
-html{overflow-y:scroll}
-body{margin:0;font-family:'Noto Sans KR',sans-serif;background:#fff;color:#1a1a1a;line-height:1.5;font-size:16px}
-a{color:inherit;text-decoration:none}
-.site-header{line-height:1.4;position:sticky;top:0;z-index:100;background:#001f3f;color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.18)}
-.site-header .in{max-width:1000px;margin:0 auto;padding:18px 16px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
-.site-header h1{line-height:1.2;margin:0;font-size:28px;font-weight:900;letter-spacing:-.02em;color:#fff}
-.site-header .sub{margin:4px 0 0;font-size:13px;color:#b6c2d1}
-.site-header .sub b{color:#fff;font-weight:700}
-.menu{display:flex;gap:10px;flex-wrap:wrap}
-.menu a,.menu span.off{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:190px;height:44px;padding:0;border-radius:2px;background:#e5e7eb;color:#1e293b;font-size:14px;font-weight:700;transition:background .15s}
-.menu a:hover{background:#f1f5f9}
-.menu span.off{opacity:.55}
-.menu a span{font-size:16px;line-height:1}
-@media (max-width:640px){.site-header h1{font-size:22px}.menu{width:100%}.menu a,.menu span.off{flex:1;width:auto;height:auto;min-height:44px;padding:4px 6px;font-size:13px;line-height:1.3;text-align:center;word-break:keep-all}}
-.wrap{max-width:1000px;margin:0 auto;padding:28px 16px 48px}
-body h2{display:flex;align-items:center;font-size:18px;font-weight:700;color:#001f3f;margin:30px 0 10px;padding-bottom:8px;border-bottom:2px solid #e5e7eb}
-body h2::before{content:'';flex:none;width:6px;height:18px;margin-right:9px;background:#001f3f}
-.card{margin:0}
-.pick-row{display:flex;justify-content:flex-start;align-items:center;gap:8px 16px;flex-wrap:wrap;margin:0 0 4px}
-.pick{display:flex;align-items:center;gap:8px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:6px 12px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
-.pick .lb{font-size:14px;font-weight:700;color:#334155}
-.pick .hint{font-size:12px;color:#64748b}
-.seg{display:inline-flex;border:1px solid #e2e8f0;border-radius:4px;overflow:hidden}
-.seg button{border:0;background:#fff;color:#334155;padding:6px 14px;cursor:pointer;font:inherit;font-size:12px;font-weight:700}
-.seg button.on{background:#001f3f;color:#fff}
-select{padding:5px 10px;border:1px solid #e2e8f0;border-radius:4px;background:#fff;color:#1e293b;font:inherit;font-size:14px;font-weight:700}
-.ctl{display:flex;justify-content:space-between;align-items:center;gap:8px 16px;flex-wrap:wrap;margin:0 0 10px}
-.ctl .r{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-table.eq{table-layout:fixed}
-table.eq th,table.eq td{white-space:normal;padding:12px 6px;word-break:keep-all}
-.legend svg{display:inline-block;vertical-align:middle;margin-right:5px}
-.legend span{display:inline-flex;align-items:center}
-.hint2{font-size:12px;color:#64748b;white-space:nowrap}
-.sub2{font-size:13px;color:#64748b}
-.cbox{background:#f9fafb;border:1px solid #e5e7eb;padding:16px 20px;font-size:15px;line-height:1.75;color:#1a1a1a}
-.cbox ul{margin:0;padding-left:20px;color:#334155}
-.cbox li{margin:2px 0}
-.up{color:var(--up);font-weight:700}.down{color:var(--down);font-weight:700}
-.tabs{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 4px}
-.tabs a{display:inline-flex;align-items:center;justify-content:center;min-width:150px;height:40px;padding:0 16px;border-radius:2px;background:#e5e7eb;color:#1e293b;font-size:14px;font-weight:700}
-.tabs a:hover{background:#f1f5f9}
-.tabs a.on{background:#001f3f;color:#fff}
-.tw{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
-th,td{border:1px solid #e5e7eb;padding:12px;text-align:center;font-size:.875rem;white-space:nowrap}
-th{background:#f8fafc;font-weight:700;color:#334155;line-height:1.4}
-td.l{text-align:left}
-td:first-child{font-weight:700}
-table.gt{table-layout:fixed}
-table.gt th,table.gt td{white-space:normal;word-break:keep-all}
-table.gt td{font-weight:400}
-table.fx{table-layout:fixed}
-table.fx th,table.fx td{white-space:normal}
-table.gt td.u1{font-weight:700;background:#f8fafc;color:#001f3f}
-table.gt td.u2{font-weight:500;background:#fcfdfe}
-table.gt td.u3{font-weight:400;white-space:nowrap}
-.legend{display:flex;gap:14px;flex-wrap:wrap;margin:0 0 8px;font-size:12px;color:#334155;font-weight:500}
-.legend i{display:inline-block;width:18px;height:3px;vertical-align:middle;margin-right:5px}
-#chart{position:relative;border:1px solid #e5e7eb;padding:1rem;background:#fff}
-#svg{font-family:inherit;display:block}
-#tip{position:absolute;pointer-events:none;background:#fff;border:1px solid #cbd5e1;padding:8px 10px;font-size:12px;box-shadow:0 10px 25px -5px rgba(0,0,0,.15);display:none;z-index:5;white-space:nowrap}
-tr.cur td{font-weight:900;color:#001f3f;background:#eef4fb;border-top:2px solid #001f3f;border-bottom:2px solid #001f3f}
-tr.cur td.up{color:var(--up)}
-tr.cur td.down{color:var(--down)}
-tr.cur td:first-child{border-left:2px solid #001f3f}
-tr.cur td:last-child{border-right:2px solid #001f3f}
-td.cm,th.cm{border-left:2px solid #001f3f;border-right:2px solid #001f3f}
-th.cmT{border-top:2px solid #001f3f}
-td.cmB{border-bottom:2px solid #001f3f}
-.totop{text-align:center;margin:28px 0 0}
-.totop button{background:#001f3f;color:#fff;border:0;border-radius:4px;padding:10px 22px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.2)}
-.totop button:hover{background:#1e293b}
-.btnlatest{background:#001f3f;color:#fff;border:0;border-radius:4px;padding:7px 12px;font:inherit;font-size:12px;font-weight:700;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.2);margin-left:4px}
-.btnlatest:hover{background:#1e293b}
-#cs{position:relative;overflow-x:auto}
-table.eq{min-width:760px}
-@media (max-width:1040px){table.gt{min-width:1100px}}
-table.gt td.nw{white-space:nowrap;font-size:13px}
-table.fx{min-width:560px}
-.note{color:#64748b;font-size:12px;margin-top:8px}
-footer{color:#64748b;font-size:12px;margin-top:28px}
+  /* KPX-Daily-Report 와 동일한 톤: 흰 배경 · Noto Sans KR · 네이비(#001f3f) 상단선 · 얇은 회색 격자 표 */
+  *{box-sizing:border-box}
+  body{margin:0;font-family:'Noto Sans KR',sans-serif;background:#fff;color:#1a1a1a}
+  .site-header{line-height:1.4;position:sticky;top:0;z-index:100;background:#001f3f;color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+  .site-header .in{max-width:1000px;margin:0 auto;padding:18px 16px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .site-header h1{line-height:1.2;margin:0;font-size:28px;font-weight:900;letter-spacing:-.02em;color:#fff}
+  .site-header .sub{margin:4px 0 0;font-size:13px;color:#b6c2d1}
+  .site-header .sub b{color:#fff;font-weight:700}
+  .menu{display:flex;gap:10px;flex-wrap:wrap}
+  .menu a{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:190px;height:44px;padding:0;border-radius:2px;background:#e5e7eb;color:#1e293b;font-size:14px;font-weight:700;text-decoration:none;transition:background .15s}
+  .menu a:hover{background:#f1f5f9}
+  .menu a span{font-size:16px;line-height:1}
+  .wrap{max-width:1000px;margin:0 auto;padding:28px 16px 48px}
+  body h2{display:flex;align-items:center;font-size:18px;font-weight:700;color:#001f3f;margin:30px 0 10px;padding-bottom:8px;border-bottom:2px solid #e5e7eb}
+  body h2::before{content:'';flex:none;width:6px;height:18px;margin-right:9px;background:#001f3f}
+  .mb{display:none}
+  @media (max-width:640px){ .mb{display:inline} .menu a{text-align:center;line-height:1.25;gap:4px;height:48px!important;padding:0 6px!important} .menu a span{display:none} .site-header h1{font-size:22px} .menu{width:100%} .menu a{flex:1;width:auto;height:40px;padding:0 12px;font-size:13px} .wrap{padding-top:20px} }
+  .pick-row{display:flex;justify-content:space-between;align-items:center;gap:8px 16px;flex-wrap:wrap;margin-bottom:16px}
+  .pick-hint{font-size:13px;color:#64748b}
+  .pick-hint b{color:#001f3f}
+  .pick{display:flex;align-items:center;gap:8px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:6px 12px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+  .pick label{font-size:14px;font-weight:700;color:#334155;cursor:pointer}
+  .pick .box{position:relative;display:flex;align-items:center}
+  .pick input{background:transparent;border:0;outline:0;font:inherit;font-size:14px;font-weight:700;color:#1e293b;width:112px;padding-right:24px;text-align:center;cursor:pointer}
+  .pick .box svg{position:absolute;right:2px;width:16px;height:16px;color:#64748b;pointer-events:none}
+  .pick .wd{font-size:12px;font-weight:700;padding:2px 6px;border:1px solid #e2e8f0;border-radius:4px;background:#fff;color:#64748b}
+  .pick .wd.hol{color:#e11d48;background:#fff1f2;border-color:#fecdd3}
+  .pick .sep{margin-left:4px;padding-left:8px;border-left:1px solid #e2e8f0}
+  .pick button{background:#001f3f;color:#fff;border:0;border-radius:4px;padding:7px 12px;font:inherit;font-size:12px;font-weight:700;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+  .pick button:hover{background:#1e293b}
+  .flatpickr-calendar{border:1px solid #cbd5e1;box-shadow:0 10px 25px -5px rgba(0,0,0,.15)}
+  .flatpickr-day.selected,.flatpickr-day.selected:hover{background:#001f3f;border-color:#001f3f}
+  .flatpickr-day.weekend-day{color:#dc2626;font-weight:700}
+  .flatpickr-weekday:first-child,.flatpickr-weekday:last-child{color:#dc2626;font-weight:700}
+  .scroll{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;min-width:760px}
+  th,td{border:1px solid #cbd5e1;padding:12px;text-align:center;font-size:.875rem}
+  th{background:#f8fafc;font-weight:700;color:#334155;line-height:1.4}
+  th small{display:block;font-weight:400;color:#64748b;font-size:11px}
+  td.grp{background:#f8fafc;font-weight:700;color:#001f3f}
+  td.lab{font-weight:700;line-height:1.35;padding:12px 6px}
+  td.info{white-space:nowrap}
+  td.state{width:120px}
+  td.hours{width:140px;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .dot{display:inline-block;width:14px;height:14px;border-radius:50%;background:#16a34a;vertical-align:middle}
+  .dash{color:#94a3b8;font-weight:700}
+  .unk{color:#d97706;font-weight:700}
+  .t{display:block;font-size:11px;color:#94a3b8;font-weight:400;margin-bottom:2px}
+  .msg{padding:36px 16px;text-align:center;color:#64748b}
+  .note{background:#f9fafb;border:1px solid #e5e7eb;padding:16px 20px;margin-bottom:28px;font-size:15px;line-height:1.75;color:#1a1a1a}
+  .note p{margin:0 0 6px}
+  .note ul{margin:0;padding-left:20px;color:#334155}
+  .dot.sm{width:11px;height:11px}
+  td.hours .hbtn{background:none;border:0;padding:2px 8px;font:inherit;color:inherit;cursor:pointer;border-radius:4px;border-bottom:1px dashed #94a3b8}
+  td.hours .hbtn:hover{background:#eef2f7;border-bottom-color:#001f3f}
+  .ov{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:center;justify-content:center;z-index:100;padding:16px}
+  .ov.on{display:flex}
+  .pop{background:#fff;border:1px solid #cbd5e1;box-shadow:0 20px 40px -10px rgba(0,0,0,.3);width:min(860px,100%);padding:20px 22px 16px}
+  .pop .hd{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+  .pop h3{margin:0;font-size:1.05rem;color:#001f3f;font-weight:700;line-height:1.4}
+  .pop h3 small{display:block;font-size:12px;color:#64748b;font-weight:400}
+  .pop .x{background:none;border:0;font-size:26px;line-height:1;color:#64748b;cursor:pointer;padding:0 4px}
+  .pop .x:hover{color:#001f3f}
+  .pop .tip{height:20px;font-size:12px;color:#334155;text-align:right}
+  .pop .cap{font-size:12px;color:#64748b;margin-top:6px}
+  .pop svg{width:100%;height:auto;display:block}
+  svg.warn{vertical-align:-3px}
 </style>
-
 </head>
 <body>
 <header class="site-header">
   <div class="in">
     <div>
-      <h1><a href="#home" style="color:#fff">에너지 단가</a></h1>
-      <p class="sub" id="sub"></p>
+      <h1>TMS</h1>
+      <p class="sub" id="sub">기준일: <b>-</b> | 에너지사업총괄</p>
     </div>
-    <nav class="menu" id="sites"></nav>
+    <nav class="menu">
+      <a href="https://shycrt-lgtm.github.io/Energy-Index/">에너지 시장<br class="mb"> 주요정보 <span>›</span></a>
+      <a href="https://shycrt-lgtm.github.io/KPX-Daily-Report/">전력시장<br class="mb"> 전일실적 <span>›</span></a>
+      <a href="https://shycrt-lgtm.github.io/Energy-Price/#home">에너지<br class="mb"> 단가 <span>›</span></a>
+    </nav>
   </div>
 </header>
+
 <div class="wrap">
-<div id="view"></div>
-<footer id="ft">도시가스: 삼천리 단가변동표(VAT 별도) · KOGAS: 발전용 천연가스 요금 단가(일반발전사업자, 원/GJ 고시) · 열요금: 한국지역난방공사(VAT 별도). 도시가스·KOGAS는 선택 단위로 통일 표시, 열요금은 원/Mcal.</footer>
+  <div class="pick-row">
+    <div class="pick-hint">※ 전일 발전시간은 <b>2026년 10월 5일</b> 자료부터 조회 가능</div>
+    <div class="pick">
+      <label for="viewDate">조회일자:</label>
+      <div class="box">
+        <input type="text" id="viewDate" readonly>
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+      </div>
+      <span id="viewWd" class="wd">(-)</span>
+      <div class="sep"><button id="btnLatest" type="button">⚡ 최근일로 →</button></div>
+    </div>
+  </div>
+  <div class="note">
+    <p><b>■ 굴뚝자동측정기기(TMS) 측정값(한국환경공단 CleanSYS) 기반 발전 여부 추정 자료로, 실제 운전 실적과 차이 가능</b></p>
+    <ul>
+      <li><b>현재상태</b> : <span class="dot sm"></span> 발전중(NOx·CO 배출 측정) &nbsp;/&nbsp; <span class="dash">-</span> 가동중지 &nbsp;/&nbsp; <span title="판정불가"><svg class="warn" width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.6 L21.2 19.4 Q21.9 20.8 20.4 20.8 H3.6 Q2.1 20.8 2.8 19.4 Z" fill="#fff" stroke="#dc2626" stroke-width="2.2" stroke-linejoin="round"/><rect x="11" y="9" width="2" height="5.6" rx="1" fill="#dc2626"/><circle cx="12" cy="17.2" r="1.15" fill="#dc2626"/></svg></span> 판정불가(미수신·보수중·확인중 등)</li>
+      <li>가장 최근 조회된 30분 슬롯 기준이며, 측정자료는 실제 시각보다 약 1~1.5시간 지연되어 게시됨</li>
+      <li><b>금일 발전시간</b> : 배출구 중 하나라도 배출이 측정된 30분 슬롯을 기준으로 산정한, 금일 0시부터 최근 조회 시각까지의 발전시간 누계 (슬롯 수 × 0.5시간, 추정치)</li>
+      <li><b>전일 발전시간</b> : 배출구 중 하나라도 배출이 측정된 30분 슬롯 수 × 0.5시간 (추정치, 2026년 10월 5일 이후 조회 가능)</li>
+      <li>측정값이 없는 구간은 가동중지로 간주 (통신 미수신 구간이 포함될 수 있음)</li>
+      <li><span class="unk">※</span> 표시 : 판정불가 또는 누락 슬롯이 포함된 값 (실제 발전시간과 차이 가능)</li>
+    </ul>
+  </div>
+
+  <h2>사업장별 발전 현황</h2>
+  <div class="scroll"><div id="out" class="msg">불러오는 중…</div></div>
 </div>
-<script src="site.config.js"></script>
-<script src="data/rates.js"></script>
-<script src="data/kogas.js"></script>
-<script src="data/heat.js"></script>
+
 <script>
-(function(){
-var C=window.SITE_CONFIG, R=window.RATES||{regions:{},months:[]}, K=window.KOGAS||{months:{}}, H=window.HEAT||{history:[]};
-var KCAL=C.heatingValueKcal||10190, CF=KCAL*4.1868/1000, EFF=0.9;
-// 우축(원/Mcal)은 좌축과 같은 눈금: 도시가스를 개별난방(효율 90%)으로 환산한 원/Mcal. 열요금 선이 도시가스 선보다 위면 열요금이 더 비쌈
-function heatToPrim(h){return h*EFF*KCAL/1000/(state.unit==="m3"?1:CF)}
-function primToHeat(p){return p/(EFF*KCAL/1000)*(state.unit==="m3"?1:CF)}
-var state={unit:"m3", region:"경기"};
-var $=function(s){return document.querySelector(s)};
-function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+// ▼ 저장소 주소 (바뀌면 여기만 수정)
+const REPO = "shycrt-lgtm/TMS", BRANCH = "data";
+const raw = p => `https://raw.githubusercontent.com/${REPO}/${BRANCH}/${p}`;
 
-$("#sites").innerHTML=C.sites.filter(function(x){return x.id!==C.current}).map(function(x){
-  return x.url?'<a href="'+esc(x.url)+'">'+esc(x.name)+' <span>›</span></a>':'<span class="off" title="주소 미설정">'+esc(x.name)+'</span>';
-}).join("");
-
-function unitLabel(){return state.unit==="m3"?"원/㎥":"원/MJ"}
-function conv(mj){return mj==null?null:(state.unit==="m3"?mj*CF:mj)}
-function fmt(v,d){return v==null?"-":v.toLocaleString("ko-KR",{minimumFractionDigits:d==null?2:d,maximumFractionDigits:d==null?2:d})}
-function fmtDP(d,base,br){if(d==null||!base)return fmtD(d);var q=d/base*100;return fmtD(d)+(br?"<br>":" ")+"("+(q>1e-9?"+":q<-1e-9?"-":"")+fmt(Math.abs(q))+"%)"}
-function pctS(d,base){if(d==null||!base)return "";var q=d/base*100;return (q>1e-9?"+":q<-1e-9?"-":"")+fmt(Math.abs(q))+"%"}
-function fmtD(v){if(v==null)return "-";var s=fmt(Math.abs(v));return (v>1e-9?"+":v<-1e-9?"-":"")+s}
-
-
-function ym(iso){return iso.slice(0,7)}
-function addM(m,n){var y=+m.slice(0,4),mo=+m.slice(5,7)-1+n;y+=Math.floor(mo/12);mo=((mo%12)+12)%12;return y+"-"+String(mo+1).padStart(2,"0")}
-function gasMonths(region){var r=R.regions[region];return r?Object.keys(r.months).map(ym):[]}
-function gasMJ(region,key,m){var r=R.regions[region];if(!r)return null;var d=r.months[m+"-01"];return d&&d[key]!=null?d[key]:null}
-function kogasMJ(m){var d=K.months&&K.months[m];return d?d.total/1000:null}
-function heatAt(m,cls){var h=null;(H.history||[]).forEach(function(x){if(x.from.slice(0,7)<=m)h=x});return h?h[cls]:null}
-var KEYS={"주택난방":{"경기":"주택난방","인천":"주택난방"},"산업용":{"경기":"산업용","인천":"산업용"},
- "열병합용":{"경기":"지역열병합집단에너지사업허가","인천":"지역열병합(CHP)"},"연료전지용":{"경기":"연료전지용","인천":"연료전지용"}};
-var latest=(function(){var a=gasMonths("경기").concat(gasMonths("인천"),Object.keys(K.months||{}));return a.sort().pop()})();
-
-function route(){return (location.hash||"#home").slice(1)}
-window.addEventListener("hashchange",function(){render();window.scrollTo(0,0)});
-
-function render(){
-  $("#sub").innerHTML="기준월: <b>"+(latest?latest.slice(0,4)+"년 "+(+latest.slice(5))+"월":"-")+"</b> | 에너지사업총괄";
-  var r=route();
-  $("#ft").style.display=(r==="gas"||r==="kogas"||r==="heat")?"none":"";
-  if(r==="gas")viewGas();else if(r==="kogas")viewKogas();else if(r==="heat")viewHeat();else viewHome();
-}
-function tabs(cur){
-  return '<div class="tabs">'+[["home","에너지단가 HOME"],["gas","도시가스"],["kogas","KOGAS 발전용(일반발전)"],["heat","열요금"]].filter(function(t){return !(cur==="none"&&t[0]==="home")}).map(function(t){
-    return '<a href="#'+t[0]+'" class="'+(cur===t[0]?"on":"")+'">'+t[1]+'</a>'}).join("")+'</div>';
-}
-function regSeg(){return '<div class="seg" id="regSeg">'+["경기","인천"].map(function(g){return '<button data-r="'+g+'" class="'+(state.region===g?"on":"")+'">'+g+'</button>'}).join("")+'</div>'}
-function unitPick(){return '<div class="pick"><span class="lb">단위</span><div class="seg" id="unitSeg">'+[["m3","원/㎥"],["mj","원/MJ"]].map(function(u){return '<button data-u="'+u[0]+'" class="'+(state.unit===u[0]?"on":"")+'">'+u[1]+'</button>'}).join("")+'</div></div><span class="hint2" style="visibility:'+(state.unit==="m3"?"visible":"hidden")+'">'+KCAL.toLocaleString("ko-KR")+'kcal/㎥ 기준</span>'}
-function regPick(){return '<div class="pick"><span class="lb">도시가스 지역</span>'+regSeg()+'</div>'}
-function bindUnit(fn){var el=$("#unitSeg");if(el)el.onclick=function(e){var u=e.target.getAttribute&&e.target.getAttribute("data-u");if(u){state.unit=u;fn()}}}
-function bindReg(fn){var rs=$("#regSeg");if(rs)rs.onclick=function(e){var g=e.target.getAttribute&&e.target.getAttribute("data-r");if(g){state.region=g;fn()}}}
-
-var SERIES=[
- {name:"도시가스 주택난방용",g:"도시가스",sub:"주택난방용",color:"#1f5fbf",shape:"circle",get:function(m){return conv(gasMJ(state.region,KEYS["주택난방"][state.region],m))}},
- {name:"도시가스 산업용",g:"도시가스",sub:"산업용",color:"#e08a00",shape:"x",get:function(m){return conv(gasMJ(state.region,KEYS["산업용"][state.region],m))}},
- {name:"도시가스 열병합용",g:"도시가스",sub:"열병합용",color:"#2a9d5c",shape:"tri",get:function(m){return conv(gasMJ(state.region,KEYS["열병합용"][state.region],m))}},
- {name:"도시가스 연료전지용",g:"도시가스",sub:"연료전지용",color:"#8e44ad",shape:"diamond",get:function(m){return conv(gasMJ(state.region,KEYS["연료전지용"][state.region],m))}},
- {name:"KOGAS 발전용(일반발전)",g:"KOGAS 발전용",sub:"일반발전",color:"#c0392b",shape:"square",get:function(m){return conv(kogasMJ(m))}},
- {name:"열요금(한난) 주택용 난방(우축)",g:"열요금",sub:"주택용 난방",color:"#555e6b",dash:"5 4",sec:true,get:function(m){return heatAt(m,"residential")}}
+// ▼ 발전용량·LNG 값 (사업장명 또는 "사업장명|구분" 으로 지정, 예: "GS파워(안양)|1호기": {cap: "000MW", lng: "000"})
+const INFO = {
+  // "㈜에스파워": {cap: "", lng: ""},
+};
+// ▼ LNG 도입 구분: [사업장명 패턴, 호기 패턴(없으면 전체), 값] — 위에서부터 먼저 맞는 규칙 적용, 없으면 기본값
+const LNG_DEFAULT = "KOGAS 평균";
+const LNG_RULES = [
+  [/광명사업단/, null, "도시가스"],
+  [/위드인천/, null, "도시가스"],
+  [/안산도시개발/, null, "도시가스"],
+  [/GS파워\(안양\)/, /1호기/, "직도입"],
+  [/GS파워\(안양\)/, /2호기/, "KOGAS 평균"],
+  [/GS파워\(부천\)/, null, "KOGAS 평균"],
+  [/GS E&R\(반월\)/, null, "유연탄, 도시가스, LPG, 중유"],
+  [/GS EPS/, /^1호기$/, "KOGAS 개별"],
+  [/GS EPS/, /^2호기$/, "KOGAS 평균"],
+  [/GS EPS/, /^3호기$/, "KOGAS 평균"],
+  [/GS EPS/, /^4호기$/, "직도입"],
+  [/GS EPS/, /^바이오/, "폐목재/식물성 잔재물"],
+  [/청라에너지|김포/, null, "KOGAS 개별"],
+  [/나래ES\(위례\)/, null, "직도입"],
+  [/나래ES\(하남\)/, null, "KOGAS 평균"],
+  [/통영에코파워/, null, "직도입"],
+  [/지피에스/, null, "직도입"],
 ];
-function sname(s){return s.name.replace("(우축)","")}
-function mk(shape,x,y,c,r){
-  if(!shape)return "";
-  x=+x;y=+y;
-  if(shape==="circle")return '<circle cx="'+x+'" cy="'+y+'" r="'+r+'" fill="'+c+'"/>';
-  if(shape==="square")return '<rect x="'+(x-r)+'" y="'+(y-r)+'" width="'+2*r+'" height="'+2*r+'" fill="'+c+'"/>';
-  if(shape==="tri")return '<polygon points="'+x+','+(y-r-1)+' '+(x-r-1)+','+(y+r)+' '+(x+r+1)+','+(y+r)+'" fill="'+c+'"/>';
-  if(shape==="diamond")return '<polygon points="'+x+','+(y-r-1.5)+' '+(x+r+1.5)+','+y+' '+x+','+(y+r+1.5)+' '+(x-r-1.5)+','+y+'" fill="'+c+'"/>';
-  return '<path d="M'+(x-r)+' '+(y-r)+'L'+(x+r)+' '+(y+r)+'M'+(x+r)+' '+(y-r)+'L'+(x-r)+' '+(y+r)+'" stroke="'+c+'" stroke-width="2" fill="none"/>';
-}
-function swatch(s){return '<svg width="28" height="12" viewBox="0 0 28 12"><line x1="0" x2="28" y1="6" y2="6" stroke="'+s.color+'" stroke-width="2"'+(s.dash?' stroke-dasharray="5 4"':'')+'/>'+mk(s.shape,14,6,s.color,3)+'</svg>'}
+// ▼ 발전용량: [사업장명 패턴, 호기 패턴(없으면 전체), 값]
+const CAP_RULES = [
+  [/에스파워/, null, "834MW"],              // (디에스파워 규칙이 아래에 있어도 아래 순서로 먼저 걸러짐)
+  [/광명사업단/, null, "46MW"],
+  [/안산도시개발/, null, "62.6MW"],
+  [/GS파워\(안양\)/, null, "481.7MW"],
+  [/GS파워\(부천\)/, null, "460.6MW"],
+  [/GS E&R\(반월\)/, null, "83.5MW"],
+  [/GS EPS/, /^1호기$/, "538MW"],
+  [/GS EPS/, /^2호기$/, "550MW"],
+  [/GS EPS/, /^3호기$/, "415MW"],
+  [/GS EPS/, /^4호기$/, "903MW"],
+  [/GS EPS/, /^바이오/, "105MW"],
+  [/청라에너지|김포/, null, "495MW"],
+  [/인천종합에너지/, null, "187.3MW"],
+  [/위드인천/, null, "24MW"],
+  [/나래ES\(위례\)/, null, "450MW"],
+  [/나래ES\(하남\)/, null, "400MW"],
+  [/평택에너지앤파워/, null, "833MW"],
+  [/포천파워/, null, "780MW"],
+  [/포천민자/, null, "987MW"],
+  [/동두천드림파워/, null, "858MW"],
+  [/통영에코파워/, null, "1,012MW"],
+  [/지피에스/, null, "1,227MW"],
+];
+const capOf = (fac, unit) => {
+  if (/디에스파워/.test(fac)) return "474MW";
+  const r = CAP_RULES.find(([f, u]) => f.test(fac) && (!u || u.test(unit)));
+  return r ? r[2] : "-";
+};
+const lngOf = (fac, unit) => {
+  const r = LNG_RULES.find(([f, u]) => f.test(fac) && (!u || u.test(unit)));
+  return r ? r[2] : LNG_DEFAULT;
+};
 
-function viewHome(){
-  var months=[];for(var i=23;i>=0;i--)months.push(addM(latest,-i));
-  var html='';
-  html+='<div class="card"><h2>요금 변동 사항 ('+latest+')</h2><div class="cbox"><ul id="cm"></ul></div></div>';
-  html+='<div class="card"><h2>최근 24개월 요금 추이 ('+months[0]+' ~ '+latest+', 도시가스 '+state.region+')</h2><div class="ctl"><div class="r">'+regPick()+unitPick()+'</div></div><div class="legend">'+SERIES.map(function(s){return '<span>'+swatch(s)+s.name+'</span>'}).join("")+'</div><div id="chart"><div id="cs"><svg id="svg"></svg><div id="tip"></div></div></div><div class="note">열요금 선이 도시가스 주택난방용 선보다 위에 있으면 열요금이 더 비싼 구간입니다.(개별난방 보일러 효율 90%, 열량 '+KCAL.toLocaleString("ko-KR")+'kcal/㎥ 기준)</div></div>';
-  html+='<div class="card"><h2>요금표 (최근 12개월, '+unitLabel()+', 열요금 원/Mcal)</h2><div class="tw"><table id="tbl" class="eq"></table></div><div class="note">빈 칸(-)은 해당 월 데이터가 아직 수집되지 않은 구간입니다. 열병합용 = '+esc(KEYS["열병합용"][state.region])+'. 굵은 테두리 행은 당월('+latest+')입니다. 열요금은 기준사업자(한국지역난방공사, 한난) 요금입니다.</div></div>';
-  html+='<div><h2>요금상세</h2>'+tabs("none")+'</div>'+'<div class="totop"><button type="button" id="toTop">▲ 맨 위로</button></div>';
-  $("#view").innerHTML=html;
-  bindReg(render);bindUnit(render);$("#toTop").onclick=function(){window.scrollTo({top:0,behavior:"smooth"})};
-  comments();chart(months);table(months.slice(-12));
-}
-function comments(){
-  var prev=addM(latest,-1), out=[];
-  ["경기","인천"].forEach(function(g){
-    var r=R.regions[g]; if(!r)return;
-    var cur=r.months[latest+"-01"], pre=r.months[prev+"-01"];
-    if(!cur||!pre){out.push("도시가스 "+g+": "+latest+" 또는 "+prev+" 자료 없음");return}
-    var ch=[],n=0;
-    Object.keys(KEYS).forEach(function(lab){
-      var k=KEYS[lab][g]; if(cur[k]==null||pre[k]==null)return;
-      if(Math.abs(cur[k]-pre[k])<1e-9){ch.push(lab+" "+fmt(conv(cur[k]))+"(0.00)");return}
-      ch.push(lab+" "+fmt(conv(pre[k]))+"→"+fmt(conv(cur[k]))+"("+fmtD(conv(cur[k])-conv(pre[k]))+", "+pctS(conv(cur[k])-conv(pre[k]),conv(pre[k]))+")");
-    });
-    Object.keys(cur).forEach(function(k){if(pre[k]!=null&&Math.abs(cur[k]-pre[k])>1e-9)n++});
-    out.push("도시가스 "+g+": 전월 대비 "+n+"개 용도 요금 변동"+(ch.length?". "+ch.join(", ")+" ("+unitLabel()+")":""));
-  });
-  var kc=kogasMJ(latest),kp=kogasMJ(prev);
-  if(kc!=null&&kp!=null)out.push("KOGAS 발전용(일반발전): "+fmt(conv(kp))+"→"+fmt(conv(kc))+" "+unitLabel()+" ("+fmtD(conv(kc)-conv(kp))+", "+fmtD((kc/kp-1)*100)+"%)");
-  var hc=heatAt(latest,"residential"),hp=heatAt(prev,"residential");
-  if(hc!=null)out.push(hc===hp?"열요금(기준사업자) 주택용 난방 단일요금: "+fmt(hc)+" 원/Mcal, 전월과 동일":"열요금(기준사업자) 주택용 난방 단일요금: "+fmt(hp)+"→"+fmt(hc)+" 원/Mcal ("+fmtD(hc-hp)+", "+pctS(hc-hp,hp)+")");
-  $("#cm").innerHTML=out.map(function(s){return "<li>"+esc(s)+"</li>"}).join("");
-}
-function table(months){
-  var h='<tr><th rowspan="2">월</th><th colspan="4">도시가스</th><th>KOGAS 발전용</th><th>열요금<br><small style="font-weight:400;color:#64748b">(기준사업자)</small></th></tr><tr>'+SERIES.map(function(s){return '<th>'+s.sub+'</th>'}).join("")+'</tr>';
-  months.slice().reverse().forEach(function(m,ix){
-    h+='<tr'+(ix===0?' class="cur"':'')+'><td>'+m+'</td>'+SERIES.map(function(s){return '<td>'+fmt(s.get(m))+'</td>'}).join("")+'</tr>';
-  });
-  $("#tbl").innerHTML=h;
-}
-function chart(months){
-  var W=Math.max(760,$("#cs").clientWidth||900),Ht=360,m={l:62,r:62,t:18,b:34};
-  var svg=$("#svg");svg.setAttribute("width",W);svg.setAttribute("height",Ht);
-  var pw=W-m.l-m.r,ph=Ht-m.t-m.b;
-  function range(){var a=[];SERIES.forEach(function(s){months.forEach(function(x){var v=s.get(x);if(v!=null)a.push(s.sec?heatToPrim(v):v)})});
-    if(!a.length)return [0,1];var lo=Math.min.apply(0,a),hi=Math.max.apply(0,a);var pad=(hi-lo)*0.12||hi*0.1||1;return [Math.max(0,lo-pad),hi+pad]}
-  var rp=range();
-  var gp=18;function X(i){return m.l+gp+(pw-2*gp)*i/(months.length-1)}
-  function Y(v,r){return m.t+ph*(1-(v-r[0])/(r[1]-r[0]))}
-  var o="",i;
-  for(i=0;i<=5;i++){var vp=rp[0]+(rp[1]-rp[0])*i/5,vs=primToHeat(vp),y=m.t+ph*(1-i/5);
-    o+='<line x1="'+m.l+'" x2="'+(W-m.r)+'" y1="'+y+'" y2="'+y+'" stroke="var(--line)"/>';
-    o+='<text x="'+(m.l-6)+'" y="'+(y+4)+'" text-anchor="end" font-size="11" fill="var(--mute)">'+fmt(vp,state.unit==="m3"?1:2)+'</text>';
-    o+='<text x="'+(W-m.r+6)+'" y="'+(y+4)+'" font-size="11" fill="var(--mute)">'+fmt(vs,1)+'</text>';}
-  o+='<text x="'+m.l+'" y="10" font-size="11" fill="var(--mute)">좌: '+unitLabel()+'</text><text x="'+(W-m.r)+'" y="10" font-size="11" text-anchor="end" fill="var(--mute)">우: 원/Mcal</text>';
-  months.forEach(function(x,i){if(i%3===(months.length-1)%3)o+='<text x="'+X(i)+'" y="'+(Ht-12)+'" text-anchor="middle" font-size="11" fill="var(--mute)">'+x+'</text>'});
-  SERIES.forEach(function(s){
-    var r=rp,d="",pen=false;
-    months.forEach(function(x,i){var v=s.get(x);if(v==null){pen=false;return}if(s.sec)v=heatToPrim(v);d+=(pen?"L":"M")+X(i).toFixed(1)+" "+Y(v,r).toFixed(1)+" ";pen=true});
-    o+='<path d="'+d+'" fill="none" stroke="'+s.color+'" stroke-width="2"'+(s.dash?' stroke-dasharray="'+s.dash+'"':'')+'/>';
-    months.forEach(function(x,i){var v=s.get(x);if(v!=null)o+=mk(s.shape,X(i).toFixed(1),Y(s.sec?heatToPrim(v):v,r).toFixed(1),s.color,3)});
-  });
-  o+='<line id="vl" y1="'+m.t+'" y2="'+(m.t+ph)+'" stroke="var(--mute)" stroke-dasharray="3 3" style="display:none"/><rect id="hit" x="'+m.l+'" y="'+m.t+'" width="'+pw+'" height="'+ph+'" fill="transparent"/>';
-  svg.innerHTML=o;
-  var tip=$("#tip"),vl=$("#vl");
-  function move(e){
-    var b=svg.getBoundingClientRect(),cx=e.touches?e.touches[0].clientX:e.clientX,px=cx-b.left;
-    var i=Math.round((px-m.l-gp)/(pw-2*gp)*(months.length-1));i=Math.max(0,Math.min(months.length-1,i));
-    vl.setAttribute("x1",X(i));vl.setAttribute("x2",X(i));vl.style.display="";
-    tip.innerHTML='<b>'+months[i]+'</b>'+SERIES.map(function(s){var v=s.get(months[i]);
-      return '<div style="display:flex;align-items:center">'+swatch(s)+sname(s)+': <b>'+fmt(v)+'</b> '+(s.sec?"원/Mcal":unitLabel())+'</div>'}).join("");
-    tip.style.display="block";
-    var tx=X(i)+14;if(tx+tip.offsetWidth>W)tx=X(i)-tip.offsetWidth-14;
-    tip.style.left=Math.max(0,tx)+"px";tip.style.top="20px";
+// ▼ 표 왼쪽 4단 배치: [그룹][회사][사업장][호기] — 규칙은 [사업장명 패턴, (호기)=>[[글자, 칸수], ...]] (칸수 합계 4)
+//   같은 글자가 위아래로 이어지면 자동으로 한 칸으로 병합됩니다. 규칙이 없으면 사업장명이 4칸 전체를 차지합니다.
+const clean = n => n.replace(/㈜|\(주\)|주식회사/g, "").trim();
+const LAYOUT = [
+  [/디에스파워/,        () => [["DS파워(대성)", 4]]],
+  [/평택에너지앤파워/,  () => [["평택에너지앤파워(E1)", 4]]],
+  [/통영에코파워/,      () => [["통영에코파워(HDC)", 4]]],
+  [/지피에스/,          () => [["울산지피에스(SK가스)", 4]]],
+  [/광명사업단/,        () => [["SCL", 1], ["광명사업단", 3]]],
+  [/안산도시개발/,      () => [["SCL", 1], ["안산도시개발", 3]]],
+  [/에스파워/,          (u, f) => /디에스파워/.test(f) ? null : [["SCL", 1], ["에스파워", 3]]],
+  [/GS파워\(안양\)/,   u => [["GS", 1], ["GS파워", 1], ["안양", 1], [u, 1]]],
+  [/GS파워\(부천\)/,   () => [["GS", 1], ["GS파워", 1], ["부천", 2]]],
+  [/청라에너지|김포/,    () => [["GS", 1], ["청라에너지(김포)", 3]]],
+  [/인천종합에너지/,     () => [["GS", 1], ["인천종합에너지", 3]]],
+  [/위드인천/,           () => [["GS", 1], ["위드인천에너지", 3]]],
+  [/GS E&R\(반월\)/,    () => [["GS", 1], ["GS E&R(반월)", 3]]],
+  [/GS EPS/,            u => [["GS", 1], ["GS EPS", 1], [u, 2]]],
+  [/나래ES\(위례\)/,   () => [["SK E&S", 1], ["나래ES", 1], ["위례열병합", 2]]],
+  [/나래ES\(하남\)/,   () => [["SK E&S", 1], ["나래ES", 1], ["하남열병합", 2]]],
+  [/포천파워/,          u => [["포천파워(DL)", 2], [u, 2]]],
+];
+function layoutOf(fac, unit, multi){
+  for (const [re, fn] of LAYOUT){
+    if (!re.test(fac)) continue;
+    const r = fn(unit, fac);
+    if (r) return r;
   }
-  var hit=$("#hit");hit.onmousemove=move;hit.ontouchmove=move;hit.onmouseleave=function(){tip.style.display="none";vl.style.display="none"};
+  return multi ? [[clean(fac), 2], [unit, 2]] : [[clean(fac), 4]];
 }
-window.addEventListener("resize",function(){if(route()==="home")render()});
 
-function monthSelect(list,sel,suffix){
-  return '<select id="msel">'+list.slice().reverse().map(function(m){return '<option value="'+m+'"'+(m===sel?" selected":"")+'>'+m+(suffix||"")+'</option>'}).join("")+'</select>';
+const LBR = {"GS파워": "GS<br>파워", "나래ES": "나래<br>ES", "GS EPS": "GS<br>EPS"};   // 사업장 열 줄바꿈 표시
+const $ = id => document.getElementById(id);
+const pad = n => String(n).padStart(2, "0");
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function ymd(t){ return `${t.getUTCFullYear()}-${pad(t.getUTCMonth()+1)}-${pad(t.getUTCDate())}`; }
+function todayKST(){ return ymd(new Date(Date.now() + 9*3600*1000)); }
+function addDays(day, n){ const [y, m, d] = day.split("-").map(Number); return ymd(new Date(Date.UTC(y, m-1, d + n))); }
+const shortTs = s => s ? s.slice(5, 16).replace("T", " ") : "";   // 10-01 12:30
+
+function parseCSV(text){
+  text = text.replace(/^﻿/, "");
+  const rows = []; let row = [], cur = "", q = false;
+  for (let i = 0; i < text.length; i++){
+    const c = text[i];
+    if (q){ if (c === '"'){ if (text[i+1] === '"'){ cur += '"'; i++; } else q = false; } else cur += c; }
+    else if (c === '"') q = true;
+    else if (c === ","){ row.push(cur); cur = ""; }
+    else if (c === "\n"){ row.push(cur); rows.push(row); row = []; cur = ""; }
+    else if (c !== "\r") cur += c;
+  }
+  if (cur !== "" || row.length){ row.push(cur); rows.push(row); }
+  return rows.filter(r => r.length > 1);
 }
-function prevOf(list,m){var i=list.indexOf(m);return i>0?list[i-1]:null}
-function cls(d){return d>1e-9?"up":d<-1e-9?"down":""}
+async function getText(path){
+  const r = await fetch(raw(path), {cache: "no-cache"});
+  return r.ok ? r.text() : null;
+}
 
-var gasSel=null;
-function viewGas(){
-  var list=gasMonths(state.region).sort();
-  if(!gasSel||list.indexOf(gasSel)<0)gasSel=list[list.length-1];
-  var r=R.regions[state.region],cur=r.months[gasSel+"-01"],pm=prevOf(list,gasSel),pre=pm?r.months[pm+"-01"]:null;
-  var h=tabs("gas")+'<div class="card"><h2>도시가스 요금 상세</h2><div class="ctl"><div class="pick"><span class="lb">조회월</span>'+monthSelect(list,gasSel)+'<button type="button" class="btnlatest" id="btnLatest">가장 최근 요금('+list[list.length-1]+')으로 →</button></div><div class="r">'+regPick()+unitPick()+'</div></div><div class="tw"><table class="gt"><colgroup><col style="width:9%"><col style="width:10%"><col style="width:9%"><col style="width:10%"><col style="width:10%"><col style="width:16%"><col style="width:36%"></colgroup><tr><th colspan="3">용도 구분</th><th class="cm cmT">당월</th><th>전월</th><th>증감</th><th>비고</th></tr>';
-  var REMARK_ADD={"업무난방":"건축물 난방","영업용1":"음식점, 병원, 상가 등 보편적 상업/영업용 시설","영업용2":"목욕탕, 스포츠시설, 폐기물처리시설"};
-  var DISP={"공동주택열병합":["열병합","공동주택"],"공동주택등열병합":["열병합","공동주택 등"],"공동주택외열병합":["열병합","공동주택 외"],"지역열병합집단에너지사업허가":["열병합","집단에너지"],"지역열병합(CHP)":["열병합","집단에너지"],"지역열병합(HOB)집단에너지사업허가":["HOB","집단에너지"],"지역열병합(HOB)'03.1.1이후신규(추가)분한함":["HOB","집단에너지(신규)"],"공동주택열병합(열전용보일러)":["HOB","공동주택"],"공동주택외열병합(열전용보일러)":["HOB","공동주택 외"]};
-  REMARK_ADD["지역열병합(HOB)'03.1.1이후신규(추가)분한함"]="'03.1.1 이후 신규(추가)분 한정";
-  var keys=r.order.filter(function(k){return cur[k]!=null});
-  var P=keys.map(function(k){var q=k.split(" > "),o={k:k,a:q[0]};
-    if(q.length===2){var m=q[1].match(/^(직영충전소(?:\([^)]*\))?)\s+(최대부하|중간부하|경부하)$/);if(m){o.b=m[1];o.c=m[2]}else o.b=q[1]}
-    else if(q.length>=3){o.b=q[1];o.c=q[2]}
-    return o});
-  P.forEach(function(o,i){var n=P[i+1];if(o.b!==undefined&&o.c===undefined&&n&&n.a===o.a&&n.b===o.b&&n.c!==undefined)o.c=""});
-  P.forEach(function(o){var m=DISP[o.k];if(m){o.a=m[0];o.b=m[1];o.c=undefined}});
-  function lab(t){t=String(t).replace(/^(동절기|하절기|기타월)\([^)]*\)$/,"$1");return esc(t).replace("냉난방공조용","냉난방<br>공조용").replace("특별단가(군사시설)","특별단가<br>(군사시설)")}
-  function run(i,f){var n=1;while(P[i+n]&&f(P[i+n])===f(P[i]))n++;return n}
-  P.forEach(function(o,i){
-    var k=o.k,v=conv(cur[k]),pv=pre&&pre[k]!=null?conv(pre[k]):null,d=pv==null?null:v-pv,pr=P[i-1],u="";
-    if(o.b===undefined){u='<td class="u1" colspan="3">'+lab(o.a)+'</td>'}
-    else{
-      if(!pr||pr.a!==o.a)u+='<td class="u1" rowspan="'+run(i,function(x){return x.a})+'">'+lab(o.a)+'</td>';
-      if(!pr||pr.a!==o.a||pr.b!==o.b)u+='<td class="u2" rowspan="'+run(i,function(x){return x.a+"|"+x.b})+'"'+(o.c===undefined?' colspan="2"':'')+'>'+lab(o.b)+'</td>';
-      if(o.c!==undefined)u+='<td class="u3">'+lab(o.c)+'</td>';
-    }
-    h+='<tr>'+u+'<td class="cm">'+fmt(v)+'</td><td>'+fmt(pv)+'</td><td class="nw '+cls(d)+'">'+fmtDP(d,pv)+'</td><td class="nw">'+esc(r.remarks[k]||REMARK_ADD[k]||"")+'</td></tr>';
+
+// ---- 전일 발전시간 클릭 → 0시~24시 가동(1)/정지(0) 계단 그래프 팝업
+let SLOTS = null, TODAY = {};
+function drawSlots(title, sub, arr, upto){   // upto: 금일 그래프일 때 마지막 게시 슬롯 번호(그 뒤는 미게시)
+  const W = 800, H = 230, L = 46, R = 14, T = 14, B = 36, pw = W - L - R, ph = H - T - B, sw = pw / 48;
+  const y1 = T + 6, y0 = T + ph - 2;
+  const v = i => arr[i] === 1 ? 1 : 0;
+  let g = "";
+  for (let h = 0; h <= 24; h += 3){                               // 가로축 눈금(시간)
+    const x = L + h * 2 * sw;
+    g += `<line x1="${x}" y1="${T}" x2="${x}" y2="${T + ph}" stroke="#e2e8f0"/><text x="${x}" y="${H - 14}" text-anchor="middle" font-size="12" fill="#64748b">${h}시</text>`;
+  }
+  g += `<text x="${L - 10}" y="${y1 + 4}" text-anchor="end" font-size="13" fill="#334155" font-weight="700">1</text><text x="${L - 10}" y="${y0 + 4}" text-anchor="end" font-size="13" fill="#334155" font-weight="700">0</text>`;
+  g += `<line x1="${L}" y1="${y1}" x2="${L + pw}" y2="${y1}" stroke="#e2e8f0" stroke-dasharray="3 3"/><line x1="${L}" y1="${y0}" x2="${L + pw}" y2="${y0}" stroke="#94a3b8"/>`;
+  let a = "", d = "";
+  for (let i = 0; i < 48; i++){                                   // 발전 구간 면 + 계단선
+    if (upto !== undefined && i > upto) break;
+    const x = L + i * sw, y = v(i) ? y1 : y0;
+    if (v(i)) a += `<rect x="${x}" y="${y1}" width="${sw}" height="${y0 - y1}" fill="#16a34a" opacity=".16"/>`;
+    d += (i === 0 ? `M${x},${y}` : `L${x},${y}`) + `L${x + sw},${y}`;
+  }
+  g += a + `<path d="${d}" fill="none" stroke="#001f3f" stroke-width="2.4" stroke-linejoin="miter"/>`;
+  let hov = "";
+  for (let i = 0; i < 48; i++){                                   // 마우스 올리면 시각·상태 표시
+    const hh = Math.floor(i / 2), mm = i % 2 ? "30" : "00", e = i + 1, eh = Math.floor(e / 2), em = e % 2 ? "30" : "00";
+    const st = upto !== undefined && i > upto ? "아직 게시되지 않음" : arr[i] === 1 ? "발전(1)" : arr[i] === 0 ? "정지(0)" : "판정불가·미수신(0)";
+    hov += `<rect class="hv" x="${L + i * sw}" y="${T}" width="${sw}" height="${ph}" fill="transparent" data-t="${hh}:${mm} ~ ${eh}:${em} · ${st}"/>`;
+  }
+  $("pTitle").innerHTML = `${esc(title)}<small>${esc(sub)}</small>`;
+  $("pChart").innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(title)} 시간대별 발전 여부">${g}${hov}</svg>`;
+  $("pTip").innerHTML = "&nbsp;";
+  $("pChart").querySelectorAll(".hv").forEach(el => {
+    el.addEventListener("mouseenter", () => { $("pTip").textContent = el.dataset.t; });
+    el.addEventListener("click", () => { $("pTip").textContent = el.dataset.t; });
   });
-  h+='</table></div><div class="note">※ 냉난방공조용 구분: 동절기(12~3월), 하절기(5~9월), 기타월(4,10,11월)</div><div class="note">'+esc(r.note||"")+'</div></div>'+'<div class="totop"><button type="button" id="toTop">▲ 맨 위로</button></div>';
-  $("#view").innerHTML=h;
-  (function(){var c=document.querySelectorAll("#view td.cm");if(c.length)c[c.length-1].classList.add("cmB")})();
-  $("#msel").onchange=function(e){gasSel=e.target.value;viewGas()};$("#btnLatest").onclick=function(){gasSel=list[list.length-1];viewGas()};
-  bindReg(viewGas);bindUnit(viewGas);$("#toTop").onclick=function(){window.scrollTo({top:0,behavior:"smooth"})};
+  $("ov").classList.add("on");
 }
+document.addEventListener("click", e => {
+  const b = e.target.closest && e.target.closest(".hbtn");
+  if (b && b.dataset.today){                       // 금일 발전시간 버튼: 오늘 0시~최근 게시 슬롯
+    const t = TODAY[b.dataset.k];
+    if (t) drawSlots(b.dataset.name, t.day + " 시간대별 발전 여부 (최근 게시 슬롯까지)", t.arr, t.upto);
+  } else if (b && SLOTS){                          // 전일 발전시간 버튼
+    const k = b.dataset.k, arr = SLOTS.units[k];
+    if (arr) drawSlots(b.dataset.name, SLOTS.day + " 시간대별 발전 여부", arr);
+  } else if (e.target.id === "ov" || e.target.id === "pClose") $("ov").classList.remove("on");
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape") $("ov").classList.remove("on"); });
 
-var kSel=null;
-function viewKogas(){
-  var list=Object.keys(K.months).sort();
-  if(!kSel||list.indexOf(kSel)<0)kSel=list[list.length-1];
-  var d=K.months[kSel],pm=prevOf(list,kSel),p=pm?K.months[pm]:null;
-  function row(lab,k,c){var v=conv(d[k]/1000),pv=p?conv(p[k]/1000):null,df=pv==null?null:v-pv;
-    return '<tr'+(c?' class="cur"':'')+'><td>'+lab+'</td><td>'+fmt(v)+'</td><td>'+fmt(pv)+'</td><td class="'+cls(df)+'">'+fmtDP(df,pv)+'</td><td>'+fmt(d[k],2)+'</td></tr>'}
-  var h=tabs("kogas")+'<div class="card"><h2>KOGAS 발전용 천연가스 요금 (일반발전사업자)</h2><div class="ctl"><div class="pick"><span class="lb">조회월</span>'+monthSelect(list,kSel)+'<button type="button" class="btnlatest" id="btnLatest">가장 최근 요금('+list[list.length-1]+')으로 →</button></div><div class="r">'+unitPick()+'</div></div><div class="tw"><table class="fx"><tr><th>구분</th><th>'+kSel+'</th><th>전월</th><th>증감</th><th>원자료(원/GJ)</th></tr>'
-   +row("원료비","fuel")+row("공급비","supply")+row("합계","total",1)+'</table></div><div class="note">'+esc(K.basis||"")+' · '+esc(K.note||"")+'</div></div>';
-  $("#view").innerHTML=h;
-  $("#msel").onchange=function(e){kSel=e.target.value;viewKogas()};$("#btnLatest").onclick=function(){kSel=list[list.length-1];viewKogas()};bindUnit(viewKogas);
+let LATEST_TXT;                                   // latest.json 은 한 번만 읽는다 (현재상태 = 마지막 저장 값)
+async function main(day = todayKST()){
+  setPicker(day);
+  const pday = addDays(day, -1);                   // 전일 발전시간 기준일
+  if (LATEST_TXT === undefined) LATEST_TXT = await getText("latest.json").catch(() => null);
+  const latestTxt = LATEST_TXT;
+  const csvTxt = await getText(`reports/report_${pday}.csv`).catch(() => null);
+  SLOTS = null;
+  try { const st = await getText(`reports/slots_${pday}.json`); if (st) SLOTS = JSON.parse(st); } catch (e) { SLOTS = null; }
+  const latest = latestTxt ? JSON.parse(latestTxt) : null;
+  const rep = {};
+  if (csvTxt) parseCSV(csvTxt).slice(1).forEach(r => rep[r[1] + "|" + r[2]] =
+      {on: parseFloat(r[4]), na: parseInt(r[6], 10), n: parseInt(r[7], 10)});
+
+  // 기본 행 목록: 최신 상태 파일 기준, 없으면 전일 리포트 기준
+  let rows;
+  if (latest) rows = latest.items.map(i => ({fac: i.facility, unit: i.unit, slot: i.slot, run: i.running,
+      th: i.today_hours, ts: i.today_slots, tu: i.today_upto, tp: i.today_partial, ta: i.today_arr}));
+  else rows = Object.keys(rep).map(k => { const [fac, unit] = k.split("|"); return {fac, unit, slot: null, run: null, noLatest: true}; });
+  if (!rows.length){ $("out").textContent = "표시할 데이터가 아직 없습니다. (첫 수집 이후 표시됩니다)"; return; }
+
+  rows.forEach(r => {
+    r.rep = rep[r.fac + "|" + r.unit];
+    r.multi = rows.filter(x => x.fac === r.fac).length > 1;
+    r.cells = layoutOf(r.fac, r.unit, r.multi);
+    let col = 0, path = "";                       // 같은 위치·같은 경로의 같은 글자는 세로 병합 대상
+    r.cells.forEach(c => { path += "/" + c[0]; c.push(col, path); col += c[1]; });
+  });
+  // 세로 병합 칸수 계산 (cells[i] = [글자, 가로칸, 시작열, 경로, (세로칸수)])
+  rows.forEach((d, i) => d.cells.forEach(c => {
+    const prev = rows[i-1], same = prev && prev.cells.some(x => x[2] === c[2] && x[1] === c[1] && x[3] === c[3]);
+    if (same){ c.skip = true; return; }
+    let k = i + 1;
+    while (k < rows.length && rows[k].cells.some(x => x[2] === c[2] && x[1] === c[1] && x[3] === c[3])) k++;
+    c.rs = k - i;
+  }));
+
+  const ls = latest && latest.latest_slot;
+  const tus = latest ? latest.items.map(i => i.today_upto).filter(Boolean).sort() : [];
+  const tUpto = tus.length ? tus[tus.length - 1] : null;      // 금일 누계 반영 기준(최근 조회 슬롯)
+  const [yy, mm, dd] = day.split("-").map(Number);
+  const wk = "일월화수목금토"[new Date(Date.UTC(yy, mm-1, dd)).getUTCDay()];
+  $("sub").innerHTML = `기준일: <b>${yy}년 ${pad(mm)}월 ${pad(dd)}일(${wk})</b> | 에너지사업총괄`;
+
+  let h = `<table><colgroup><col style="width:58px"><col style="width:62px"><col style="width:58px"><col style="width:58px"><col><col><col><col><col></colgroup><thead><tr><th colspan="4">사업장</th>
+    <th>현재상태<small>${ls ? shortTs(ls) + " 기준" : "-"}</small></th>
+    <th>금일 발전시간<small>${tUpto ? shortTs(tUpto) + " 기준" : "-"}</small></th>
+    <th>전일 발전시간<small>${pday}</small></th><th>발전용량</th><th>비고</th></tr></thead><tbody>`;
+  for (const d of rows){
+    h += "<tr>";
+    d.cells.forEach((c, k) => { if (!c.skip) h += `<td class="lab${c[2] === 0 && c[1] === 1 ? " grp" : ""}" colspan="${c[1]}" rowspan="${c.rs}">${LBR[c[0]] || esc(c[0])}</td>`; });
+    let st;
+    if (d.noLatest) st = `<span class="dash">-</span>`;
+    else if (d.run === 1) st = `<span class="dot" title="발전중"></span>`;
+    else if (d.run === 0) st = `<span class="dash" title="가동중지">-</span>`;
+    else st = `<span title="판정불가"><svg class="warn" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.6 L21.2 19.4 Q21.9 20.8 20.4 20.8 H3.6 Q2.1 20.8 2.8 19.4 Z" fill="#fff" stroke="#dc2626" stroke-width="2.2" stroke-linejoin="round"/><rect x="11" y="9" width="2" height="5.6" rx="1" fill="#dc2626"/><circle cx="12" cy="17.2" r="1.15" fill="#dc2626"/></svg></span>`;
+    h += `<td class="state">${st}</td>`;
+
+    if (Array.isArray(d.ta) && d.tu){ const idx = parseInt(d.tu.slice(11, 13), 10) * 2 + (parseInt(d.tu.slice(14, 16), 10) >= 30 ? 1 : 0); TODAY[d.fac + "|" + d.unit] = {day: d.tu.slice(0, 10), arr: d.ta, upto: idx}; }
+    let tdy = `<span class="dash">-</span>`;                     // 금일 발전시간: 0시~최근 조회 슬롯 누계
+    if (typeof d.th === "number" && d.ts > 0)
+      tdy = (Array.isArray(d.ta) && d.tu
+          ? `<button type="button" class="hbtn" data-today="1" data-k="${esc(d.fac + "|" + d.unit)}" data-name="${esc(d.fac + (d.multi || d.unit !== "1" ? " " + d.unit : ""))}" title="클릭하면 시간대별 그래프"><b>${d.th.toFixed(1)}</b> h</button>`
+          : `<b>${d.th.toFixed(1)}</b> h`) + `${d.tp ? ` <span class="unk" title="판정불가·누락 슬롯 포함">※</span>` : ""}`;
+    h += `<td class="hours">${tdy}</td>`;
+
+    let hr = `<span class="dash">-</span>`;
+    if (d.rep && !isNaN(d.rep.on)){
+      const flag = d.rep.na > 0 || d.rep.n < 48 ? ` <span class="unk" title="판정불가·누락 슬롯 포함">※</span>` : "";
+      const key = d.fac + "|" + d.unit;
+      const nm = d.fac + (d.multi || d.unit !== "1" ? " " + d.unit : "");
+      hr = SLOTS && SLOTS.units[key]
+        ? `<button type="button" class="hbtn" data-k="${esc(key)}" data-name="${esc(nm)}" title="클릭하면 시간대별 그래프"><b>${d.rep.on.toFixed(1)}</b> h</button>${flag}`
+        : `<b>${d.rep.on.toFixed(1)}</b> h${flag}`;
+    }
+    h += `<td class="hours">${hr}</td>`;
+    const info = INFO[d.fac + "|" + d.unit] || INFO[d.fac] || {};
+    h += `<td class="info">${esc(info.cap || capOf(d.fac, d.unit))}</td>`;
+    h += `<td class="info">${esc(info.lng || lngOf(d.fac, d.unit))}</td>`;
+    h += "</tr>";
+  }
+  $("out").className = ""; $("out").innerHTML = h + "</tbody></table>";
 }
-
-var hSel=null;
-function viewHeat(){
-  var hist=(H.history||[]).slice().sort(function(a,b){return a.from<b.from?-1:1});
-  var list=hist.map(function(x){return x.from});
-  if(!hSel||list.indexOf(hSel)<0)hSel=list[list.length-1];
-  var cur=hist[list.indexOf(hSel)],pi=list.indexOf(hSel),pre=pi>0?hist[pi-1]:null;
-  var rows=[["주택용 난방용","residential"],["업무용 난방용","business"],["공공용 난방용","public"]];
-  var pm=addM(hSel.slice(0,7),-1), pd=pre?pre.from.slice(2):null;
-  var h=tabs("heat")+'<div class="card"><h2>열요금 (기준사업자 한국지역난방공사 · 난방용 단일요금)</h2><div class="ctl"><div class="pick"><span class="lb">변동 시점</span>'+monthSelect(list,hSel)+'<button type="button" class="btnlatest" id="btnLatest">가장 최근 요금('+list[list.length-1]+')으로 →</button></div><div class="r"><span class="sub2">단위 원/Mcal</span></div></div><div class="tw"><table class="fx"><tr><th>구분</th><th class="cm cmT">'+hSel+'부터</th><th>'+hSel+' 이전</th><th>증감</th><th>직전 개정시기</th></tr>';
-  rows.forEach(function(r){var v=cur[r[1]],p=heatAt(pm,r[1]),d=p==null?null:v-p,pv=pre?pre[r[1]]:null;
-    h+='<tr><td>'+r[0]+'</td><td class="cm">'+fmt(v)+'</td><td>'+fmt(p)+'</td><td class="'+cls(d)+'">'+fmtDP(d,p,1)+'</td><td>'+(pd||'-')+'</td></tr>'});
-  h+='</table></div><div class="note">※ 기본요금 — 주택용: '+esc(cur.base.residential)+' · 업무용: '+esc(cur.base.business)+' · 공공용: '+esc(cur.base.public)+'<br>열요금은 기준사업자인 한국지역난방공사(한난)의 요금입니다.<br>출처: '+esc(H.source||"")+'. 과거 요금 이력은 자료 확보 후 추가 예정입니다.</div></div>';
-  $("#view").innerHTML=h;
-  (function(){var c=document.querySelectorAll("#view td.cm");if(c.length)c[c.length-1].classList.add("cmB")})();
-  $("#msel").onchange=function(e){hSel=e.target.value;viewHeat()};$("#btnLatest").onclick=function(){hSel=list[list.length-1];viewHeat()};
+const MIN_DAY = "2026-10-05";                      // 이 날짜부터 조회 가능
+const fail = e => { $("out").className = "msg"; $("out").textContent = "불러오지 못했습니다. 잠시 후 다시 시도해 주세요. (" + e.message + ")"; };
+function setPicker(day){
+  const [y, m, d] = day.split("-").map(Number);
+  const wk = new Date(Date.UTC(y, m-1, d)).getUTCDay();
+  $("viewDate").value = day;
+  $("viewWd").textContent = "(" + "일월화수목금토"[wk] + ")";
+  $("viewWd").className = "wd" + (wk === 0 || wk === 6 ? " hol" : "");
 }
-
-render();
-})();
+main().catch(fail);
+window.addEventListener("DOMContentLoaded", () => {
+  if (typeof flatpickr === "undefined") return;     // 달력 라이브러리가 늦어도 표는 먼저 보인다
+  const last = todayKST(), first = addDays(MIN_DAY, 1);   // 조회일자 = 오늘 기준, 전일 자료는 MIN_DAY부터
+  const fp = flatpickr("#viewDate", {
+    locale: "ko", dateFormat: "Y-m-d", defaultDate: last, disableMobile: true,
+    minDate: first < last ? first : last, maxDate: last,
+    onDayCreate: (o, s, f, el) => { const w = el.dateObj.getDay(); if (w === 0 || w === 6) el.classList.add("weekend-day"); },
+    onChange: (d, str) => { if (str) { $("out").className = "msg"; $("out").textContent = "불러오는 중…"; main(str).catch(fail); } }
+  });
+  $("btnLatest").addEventListener("click", () => { fp.setDate(last, false); $("out").className = "msg"; $("out").textContent = "불러오는 중…"; main(last).catch(fail); });
+});
 </script>
+<div class="ov" id="ov"><div class="pop" role="dialog" aria-modal="true">
+  <div class="hd"><h3 id="pTitle"></h3><button class="x" id="pClose" aria-label="닫기">×</button></div>
+  <div class="tip" id="pTip">&nbsp;</div>
+  <div id="pChart"></div>
+  <div class="cap">1 = 발전, 0 = 정지 또는 판정불가·미수신 (30분 단위)</div>
+</div></div>
 </body>
 </html>
