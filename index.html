@@ -66,7 +66,7 @@ table.fx{table-layout:fixed}
 table.fx th,table.fx td{white-space:normal}
 table.gt td.u1{font-weight:700;background:#f8fafc;color:#001f3f}
 table.gt td.u2{font-weight:500;background:#fcfdfe}
-table.gt td.u3{font-weight:400}
+table.gt td.u3{font-weight:400;white-space:nowrap}
 .legend{display:flex;gap:14px;flex-wrap:wrap;margin:0 0 8px;font-size:12px;color:#334155;font-weight:500}
 .legend i{display:inline-block;width:18px;height:3px;vertical-align:middle;margin-right:5px}
 #chart{position:relative;border:1px solid #e5e7eb;padding:1rem;background:#fff}
@@ -84,7 +84,8 @@ tr.cur td:last-child{border-right:2px solid #001f3f}
 .btnlatest:hover{background:#1e293b}
 #cs{position:relative;overflow-x:auto}
 table.eq{min-width:760px}
-table.gt{min-width:820px}
+table.gt{min-width:1100px}
+table.gt td.nw{white-space:nowrap;font-size:13px}
 table.fx{min-width:560px}
 .note{color:#64748b;font-size:12px;margin-top:8px}
 footer{color:#64748b;font-size:12px;margin-top:28px}
@@ -270,7 +271,8 @@ function viewGas(){
   var list=gasMonths(state.region).sort();
   if(!gasSel||list.indexOf(gasSel)<0)gasSel=list[list.length-1];
   var r=R.regions[state.region],cur=r.months[gasSel+"-01"],pm=prevOf(list,gasSel),pre=pm?r.months[pm+"-01"]:null;
-  var h=tabs("gas")+'<div class="card"><h2>도시가스 요금 상세</h2><div class="ctl"><div class="pick"><span class="lb">조회월</span>'+monthSelect(list,gasSel)+'<button type="button" class="btnlatest" id="btnLatest">가장 최근 요금('+list[list.length-1]+')으로 →</button></div><div class="r">'+regPick()+unitPick()+'</div></div><div class="tw"><table class="gt"><colgroup><col style="width:14%"><col style="width:19%"><col style="width:11%"><col style="width:10%"><col style="width:10%"><col style="width:14%"><col style="width:22%"></colgroup><tr><th colspan="3">용도 구분</th><th>요금</th><th>전월</th><th>증감</th><th>비고</th></tr>';
+  var h=tabs("gas")+'<div class="card"><h2>도시가스 요금 상세</h2><div class="ctl"><div class="pick"><span class="lb">조회월</span>'+monthSelect(list,gasSel)+'<button type="button" class="btnlatest" id="btnLatest">가장 최근 요금('+list[list.length-1]+')으로 →</button></div><div class="r">'+regPick()+unitPick()+'</div></div><div class="tw"><table class="gt"><colgroup><col style="width:10%"><col style="width:11%"><col style="width:12%"><col style="width:9%"><col style="width:9%"><col style="width:16%"><col style="width:34%"></colgroup><tr><th colspan="3">용도 구분</th><th>요금</th><th>전월</th><th>증감</th><th>비고</th></tr>';
+  var REMARK_ADD={"업무난방":"건축물 난방","영업용1":"음식점, 병원, 상가 등 보편적 상업/영업용 시설","영업용2":"목욕탕, 스포츠시설, 폐기물처리시설"};
   var keys=r.order.filter(function(k){return cur[k]!=null});
   var P=keys.map(function(k){var q=k.split(" > "),o={k:k,a:q[0]};
     if(q.length===2){var m=q[1].match(/^(직영충전소(?:\([^)]*\))?)\s+(최대부하|중간부하|경부하)$/);if(m){o.b=m[1];o.c=m[2]}else o.b=q[1]}
@@ -286,7 +288,7 @@ function viewGas(){
       if(!pr||pr.a!==o.a||pr.b!==o.b)u+='<td class="u2" rowspan="'+run(i,function(x){return x.a+"|"+x.b})+'"'+(o.c===undefined?' colspan="2"':'')+'>'+esc(o.b)+'</td>';
       if(o.c!==undefined)u+='<td class="u3">'+esc(o.c)+'</td>';
     }
-    h+='<tr>'+u+'<td>'+fmt(v)+'</td><td>'+fmt(pv)+'</td><td class="'+cls(d)+'">'+fmtDP(d,pv)+'</td><td>'+esc(r.remarks[k]||"")+'</td></tr>';
+    h+='<tr>'+u+'<td>'+fmt(v)+'</td><td>'+fmt(pv)+'</td><td class="nw '+cls(d)+'">'+fmtDP(d,pv)+'</td><td class="nw">'+esc(r.remarks[k]||REMARK_ADD[k]||"")+'</td></tr>';
   });
   h+='</table></div><div class="note">'+esc(r.note||"")+'</div></div>'+'<div class="totop"><button type="button" id="toTop">▲ 맨 위로</button></div>';
   $("#view").innerHTML=h;
