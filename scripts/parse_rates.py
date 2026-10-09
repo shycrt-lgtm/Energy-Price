@@ -101,12 +101,13 @@ def parse_sheet(sheet):
     date_b = to_iso(header[col_b])
     col_remark = col_b + 2
 
+    off = col_a - 4  # 2025년 xlsx는 라벨 열이 한 칸 앞(A열)에 있어 위치를 보정
     rows = []
     note = ""
     c1 = c2 = parent3 = ""
     for r in range(header_row + 1, sheet.nrows):
         v = sheet.row_values(r)
-        label1 = str(v[1]).strip()
+        label1 = str(v[1 + off]).strip()
         if label1.startswith("▷"):
             note = collapse(label1.lstrip("▷"))
             break
@@ -114,11 +115,11 @@ def parse_sheet(sheet):
             c1 = squash(label1)
             c2 = ""
             parent3 = ""
-        label2 = str(v[2]).strip()
+        label2 = str(v[2 + off]).strip()
         if label2:
             c2 = squash(label2)
             parent3 = ""
-        label3 = collapse(v[3])
+        label3 = collapse(v[3 + off])
         if label3.startswith("-"):
             c3 = f"{parent3} {collapse(label3.lstrip('- '))}".strip()
         else:
@@ -133,10 +134,25 @@ def parse_sheet(sheet):
     return date_a, date_b, rows, note
 
 
+def _bad_key(k):
+    """항목명 대신 숫자가 들어간 잘못된 키(과거 파서 오류) 판별."""
+    return any(re.fullmatch(r"-?\d+(\.\d+)?", p.strip()) for p in k.split(" > "))
+
+
 def load():
-    if DATA_JSON.exists():
-        return json.loads(DATA_JSON.read_text(encoding="utf-8"))
-    return {"unit": UNIT, "regions": {}}
+    if not DATA_JSON.exists():
+        return {"unit": UNIT, "regions": {}}
+    store = json.loads(DATA_JSON.read_text(encoding="utf-8"))
+    for reg in store.get("regions", {}).values():  # 잘못 저장된 월은 비워서 다시 수집되게 한다
+        reg["order"] = [k for k in reg.get("order", []) if not _bad_key(k)]
+        reg["remarks"] = {k: v for k, v in reg.get("remarks", {}).items() if not _bad_key(k)}
+        months = {}
+        for m, vals in reg.get("months", {}).items():
+            good = {k: v for k, v in vals.items() if not _bad_key(k)}
+            if "주택난방" in good:
+                months[m] = good
+        reg["months"] = months
+    return store
 
 
 def merge(store, region, date_a, date_b, rows, note):
