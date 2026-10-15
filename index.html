@@ -125,7 +125,7 @@ var $=function(s){return document.querySelector(s)};
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
 
 $("#sites").innerHTML=C.sites.filter(function(x){return x.id!==C.current}).map(function(x){
-  return x.url?'<a href="'+esc(x.url)+'">'+esc(x.name)+' <span>›</span></a>':'<span class="off" title="주소 미설정">'+esc(x.name)+'</span>';
+  return x.url?'<a href="'+esc(x.url)+'"'+(x.reportLink?' data-report-link':'')+'>'+esc(x.name)+' <span>›</span></a>':'<span class="off" title="주소 미설정">'+esc(x.name)+'</span>';
 }).join("");
 
 function unitLabel(){return state.unit==="m3"?"원/㎥":"원/MJ"}
@@ -337,5 +337,6 @@ function viewHeat(){
 render();
 })();
 </script>
+  <script defer src="https://shycrt-lgtm.github.io/Report/badge.js"></script>
 </body>
 </html>
